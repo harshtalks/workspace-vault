@@ -7,7 +7,9 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "ui:add": "pnpm --filter ui ui:add"
+    "ui:add": "pnpm --filter ui ui:add",
+    "web:add": "pnpm --filter web web:add",
+    "crypto:add": "pnpm --filter cryptography crypto:add"
   },
   "devDependencies": {
     "@turbo/gen": "^1.9.7",

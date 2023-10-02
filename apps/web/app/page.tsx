@@ -1,10 +1,9 @@
-import { Button } from "@ui/components/button";
+import HeroContainer from "@/components/hero/hero-container";
 
 export default function Page() {
   return (
     <>
-      <h1>Web</h1>
-      <Button>Click me</Button>
+      <HeroContainer />
     </>
   );
 }

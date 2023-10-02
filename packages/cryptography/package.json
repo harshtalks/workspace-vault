@@ -1,0 +1,12 @@
+{
+  "name": "cryptography",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "crypto:add": "pnpm install"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.12",
+    "typescript": "^4.5.3"
+  }
+}
