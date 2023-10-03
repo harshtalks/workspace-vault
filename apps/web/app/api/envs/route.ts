@@ -10,6 +10,7 @@ import { NextRequest } from "next/server";
 export type EnvAPIRequestBody = {
   envs: AddNewEnvProps;
   workspace: string;
+  envId?: number;
 };
 
 export const POST = async (request: NextRequest) => {
@@ -25,13 +26,28 @@ export const POST = async (request: NextRequest) => {
     });
 
     // saving the variable to the database.
-    const envVault = await prisma.environmentVariables.create({
-      data: {
-        secretId: secret.id,
-        name: body.envs.name,
-        variables: body.envs.envariables,
-      },
-    });
+    let envVault: EnvironmentVariables;
+    if (body.envId) {
+      // updating
+      envVault = await prisma.environmentVariables.update({
+        where: {
+          id: body.envId,
+        },
+        data: {
+          name: body.envs.name,
+          variables: body.envs.envariables,
+        },
+      });
+    } else {
+      // saving
+      envVault = await prisma.environmentVariables.create({
+        data: {
+          secretId: secret.id,
+          name: body.envs.name,
+          variables: body.envs.envariables,
+        },
+      });
+    }
 
     return Response.json(
       {

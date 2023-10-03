@@ -31,6 +31,12 @@ export const GET = async (request: NextApiRequest) => {
   // authenticators
   const prismaClient = new PrismaClient();
   try {
+    const authUser = await prismaClient.user.findFirstOrThrow({
+      where: {
+        id: user.userId,
+      },
+    });
+
     const authResults = await prismaClient.authenticators.findMany({
       where: {
         userId: user.userId,
@@ -58,7 +64,7 @@ export const GET = async (request: NextApiRequest) => {
       rpName,
       rpID,
       userID: user.userId,
-      userName: user.userId,
+      userName: authUser.email,
       attestationType: "none",
       excludeCredentials: userAuthenticators.map((authenticator) => ({
         id: authenticator.credentialID,

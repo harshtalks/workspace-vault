@@ -1,3 +1,4 @@
+import { secretDB } from "@/utils/local-store";
 import { currentUser } from "@clerk/nextjs";
 import { Button } from "@ui/components/ui/button";
 import { PrismaClient } from "database";
@@ -10,7 +11,7 @@ const onlyMembersAllowed = async (workspaceId: string) => {
   const prisma = new PrismaClient();
 
   try {
-    const member = await prisma.orgMember.findFirstOrThrow({
+    const _ = await prisma.orgMember.findFirstOrThrow({
       where: {
         orgId: workspaceId,
         userId: user.id,

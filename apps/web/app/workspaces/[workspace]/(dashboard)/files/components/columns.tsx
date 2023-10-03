@@ -44,7 +44,19 @@ export const columns: ColumnDef<SecretFiles>[] = [
 
   {
     accessorKey: "created_at",
-    header: () => <div className="text-right">Created At</div>,
+    header: ({ column }) => (
+      <div
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="text-right"
+      >
+        <Button variant="ghost">
+          <>
+            Created At
+            <ArrowUpIcon className="ml-2 h-4 w-4" />
+          </>
+        </Button>
+      </div>
+    ),
     cell: ({ row }) => {
       const secret = row.original;
       const createdAt = secret.created_at;

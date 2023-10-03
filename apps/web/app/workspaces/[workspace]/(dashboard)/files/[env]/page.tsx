@@ -6,8 +6,9 @@ import React, { Suspense } from "react";
 import { Await } from "./await";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import Details from "./components/details";
+import { Accessed } from "./components/accessed";
 
-const getEnvDataFromServer = async (env: number) => {
+export const getEnvDataFromServer = async (env: number) => {
   const prisma = new PrismaClient();
   try {
     const file = await prisma.environmentVariables.findUniqueOrThrow({
@@ -45,11 +46,16 @@ const getEnvDataFromServer = async (env: number) => {
   }
 };
 
-type ExtractWorkspaceSuccess<T> = T extends { status: "success" } ? T : never;
-
-export type WhatServerPromisedMeUponTheirSuccess = ExtractWorkspaceSuccess<
-  Awaited<ReturnType<typeof getEnvDataFromServer>>
+export type GetEnvDataFromServer = Awaited<
+  ReturnType<typeof getEnvDataFromServer>
 >;
+
+export type ExtractWorkspaceSuccess<T> = T extends { status: "success" }
+  ? T
+  : never;
+
+export type WhatServerPromisedMeUponTheirSuccess =
+  ExtractWorkspaceSuccess<GetEnvDataFromServer>;
 
 const Page = async ({
   params,
@@ -96,11 +102,16 @@ const Page = async ({
                 <Button>Go Back</Button>
               </div>
             </div>
-            <Details
-              env={params.env}
-              workspace={params.workspace}
-              results={giveMeMyResult}
-            />
+            <div>
+              <Details
+                env={params.env}
+                workspace={params.workspace}
+                results={giveMeMyResult}
+              />
+            </div>
+            <div className="w-[400px]">
+              <Accessed />
+            </div>
           </div>
         )}
       </div>

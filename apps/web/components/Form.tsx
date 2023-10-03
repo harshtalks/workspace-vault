@@ -16,13 +16,13 @@ import Link from "next/link";
 import { EyeOpenIcon, EyeNoneIcon, ReloadIcon } from "@radix-ui/react-icons";
 import { ReadFile } from "./read-file";
 import { atom, useRecoilState } from "recoil";
-import { assertion, number, object, optional, string } from "@recoiljs/refine";
 import { secretDB } from "@/utils/local-store";
-import { encryptTextWithAESGCM } from "cryptography";
+import { decryptTextWithAESGCM, encryptTextWithAESGCM } from "cryptography";
 import { EnvAPIRequestBody } from "@/app/api/envs/route";
 import { WorkspaceResponse } from "@/middlewares/type";
 import { EnvironmentVariables } from "database";
 import { toast } from "sonner";
+import { GetEnvDataFromServer } from "@/app/workspaces/[workspace]/(dashboard)/files/[env]/page";
 
 export type AddNewEnvProps = {
   envariables: string;
@@ -30,27 +30,81 @@ export type AddNewEnvProps = {
   name: string;
 };
 
-const validateState = object({
-  envariables: string(),
-  readLimits: optional(number()),
-  name: string(),
-});
-
-export function Form({ workspace }: { workspace: string }) {
+export function Form({
+  workspace,
+  resultFromServer,
+}: {
+  workspace: string;
+  resultFromServer: GetEnvDataFromServer | null;
+}) {
   const [hideEnvs, setHideEnvs] = React.useState(false);
+  const [isClient, setIsClient] = React.useState(false);
+  const [showError, setError] = React.useState(false);
 
   const [state, setState] = useRecoilState(
     atom<AddNewEnvProps>({
       key: "AddNewFile",
-      default: {
-        envariables: "",
-        readLimits: -1, // -1 means unlimited
-        name: "",
-      },
+      default:
+        resultFromServer && resultFromServer.status === "success"
+          ? {
+              envariables: "",
+              readLimits: -1, // -1 means unlimited
+              name: resultFromServer.result.name,
+            }
+          : {
+              envariables: "",
+              readLimits: 19, // -1 means unlimited
+              name: "",
+            },
     })
   );
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
 
-  const [content, setContent] = React.useState("");
+  React.useEffect(() => {
+    const decryptIt = async () => {
+      try {
+        await secretDB.open();
+
+        const getMasterKey = await secretDB.secrets.get(workspace);
+
+        if (!getMasterKey) {
+          throw new Error("No key available to decrypt it.");
+        }
+
+        const key = getMasterKey.key;
+
+        // encrypting..
+
+        const decryptedText =
+          resultFromServer.status === "success" &&
+          (await decryptTextWithAESGCM(resultFromServer.result.variables, key));
+
+        setState((current) => ({
+          ...current,
+          envariables: decryptedText,
+        }));
+      } catch (error) {
+        error instanceof Error && toast.error(error.message);
+      }
+    };
+
+    // Immediately Invoked Function Expression (IIFE)
+    resultFromServer &&
+      (resultFromServer.status === "success"
+        ? (async () => {
+            await decryptIt();
+          })()
+        : setError(true));
+  }, []);
+
+  React.useEffect(() => {
+    showError &&
+      toast.error(
+        "Sorry, we could not find the environment variables file attached with the given id."
+      );
+  }, [showError]);
 
   const [isLoading, setIsLoading] = React.useState(false);
 
@@ -62,14 +116,13 @@ export function Form({ workspace }: { workspace: string }) {
 
   // handler
   const handler = async () => {
-    setIsLoading(true);
     try {
-      // type assertion
-      const assertedStateValidation = assertion(
-        validateState,
-        "Invalid value for the name, and env variables."
-      );
-      const _ = assertedStateValidation(state);
+      const validationError = state.envariables === "" && state.name === "";
+      if (validationError) {
+        throw new Error("Invalid value for the name, and env variables.");
+      }
+
+      setIsLoading(true);
 
       // getting the master key
       await secretDB.open();
@@ -95,6 +148,10 @@ export function Form({ workspace }: { workspace: string }) {
             readLimits: state.readLimits,
           },
           workspace: workspace,
+          ...(resultFromServer &&
+            resultFromServer.status === "success" && {
+              envId: resultFromServer.result.id,
+            }),
         } as EnvAPIRequestBody),
       });
 
@@ -117,7 +174,7 @@ export function Form({ workspace }: { workspace: string }) {
     }
   };
 
-  return (
+  return isClient ? (
     <Card className="w-full">
       <CardHeader>
         <CardTitle>Share Variables</CardTitle>
@@ -127,33 +184,39 @@ export function Form({ workspace }: { workspace: string }) {
           <div className="grid w-full items-center gap-4">
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="name">Environment Variables</Label>
-              <div className="flex  py-1 space-x-2 border outline-2 focus-visible:ring-2 focus-visible:ring-ring rounded-md overflow-auto max-h-[200px]">
-                <div className="pl-2 p-0 h-full text-zinc-300 border-zinc-700">
-                  {Array.from({
-                    length: (hideEnvs ? fakeValue : state.envariables).split(
-                      "\n"
-                    ).length,
-                  }).map((_, _index) => (
-                    <React.Fragment key={_index}>
-                      <p className="text-sm pr-2 border-r-2 font-semibold">
-                        {(_index + 1).toString().padStart(2, "0")}
-                      </p>
-                    </React.Fragment>
-                  ))}
+              <div className="relative h-[200px] w-full">
+                <div className="flex absolute w-full text-zinc-500 font-mono py-2 space-x-2 border outline-2 focus-visible:ring-2 focus-visible:ring-ring rounded-sm overflow-auto max-h-[200px]">
+                  <div className="pl-2 p-0 h-full text-zinc-500 border-zinc-700">
+                    {Array.from({
+                      length: (hideEnvs
+                        ? fakeValue
+                        : state.envariables || ""
+                      ).split("\n").length,
+                    }).map((_, _index) => (
+                      <React.Fragment key={_index}>
+                        <p className="text-sm pr-2 border-r-2 font-normal text-zinc-500">
+                          {(_index + 1).toString().padStart(2, "0")}
+                        </p>
+                      </React.Fragment>
+                    ))}
+                  </div>
+                  <Textarea
+                    className="w-full h-full appearance-none resize-none m-0 text-sm focus-visible:ring-0 rounded-0 outline-0 p-0 ring-0 border-0"
+                    rows={Math.max(
+                      9,
+                      (state.envariables || "").split("\n").length
+                    )}
+                    value={hideEnvs ? fakeValue : state.envariables || ""}
+                    onChange={(e) => {
+                      setState((state) => ({
+                        ...state,
+                        envariables: e.target.value,
+                      }));
+                    }}
+                    placeholder="Enter Input as ENV_KEY=ENV_VALUE"
+                    disabled={hideEnvs}
+                  />
                 </div>
-                <Textarea
-                  className="w-full h-full appearance-none resize-none m-0 text-sm focus-visible:ring-0 rounded-0 outline-0 p-0 ring-0 border-0"
-                  rows={Math.max(9, state.envariables.split("\n").length)}
-                  value={hideEnvs ? fakeValue : state.envariables}
-                  onChange={(e) => {
-                    setState((state) => ({
-                      ...state,
-                      envariables: e.target.value,
-                    }));
-                  }}
-                  placeholder="Enter Input as ENV_KEY=ENV_VALUE"
-                  disabled={hideEnvs}
-                />
               </div>
 
               <Button
@@ -209,7 +272,12 @@ export function Form({ workspace }: { workspace: string }) {
                 </p>
               </div>
               <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="number_of_reads">Number of Reads</Label>
+                <Label htmlFor="number_of_reads">
+                  Number of Reads{" "}
+                  <span className="px-2 py-1 text-xs rounded-xs bg-foreground text-background dark:bg-background dark:text-foreground">
+                    Coming Soon
+                  </span>
+                </Label>
                 <Input
                   type="number"
                   min={0}
@@ -223,6 +291,8 @@ export function Form({ workspace }: { workspace: string }) {
                   id="number_of_reads"
                   className="appearance-none"
                   placeholder="Enter number of reads"
+                  disabled
+                  readOnly
                 />
                 <p className="text-xs text-zinc-400 ">
                   The number of times this variable can be read, it will expire
@@ -243,8 +313,10 @@ export function Form({ workspace }: { workspace: string }) {
           )}
           Save File
         </Button>
-        <ReadFile setHideEnvs={setHideEnvs} setContent={setContent} />
+        <ReadFile setHideEnvs={setHideEnvs} setState={setState} />
       </CardFooter>
     </Card>
+  ) : (
+    <></>
   );
 }

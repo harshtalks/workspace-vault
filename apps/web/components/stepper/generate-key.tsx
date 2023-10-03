@@ -74,7 +74,11 @@ function GenerateKey({
 
       await secretDB.open();
 
-      await secretDB.secrets.clear();
+      const result = await secretDB.secrets.get(workspace);
+
+      if (result) {
+        await secretDB.secrets.delete(workspace);
+      }
 
       const key = await secretDB.secrets.add(
         {

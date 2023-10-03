@@ -12,12 +12,14 @@ import {
 } from "@ui/components/dialog";
 import { Input } from "@ui/components/input";
 import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
+import { SetterOrUpdater } from "recoil";
+import { AddNewEnvProps } from "./Form";
 
 export function ReadFile({
-  setContent,
+  setState,
   setHideEnvs,
 }: {
-  setContent: Dispatch<SetStateAction<string>>;
+  setState: SetterOrUpdater<AddNewEnvProps>;
   setHideEnvs: Dispatch<SetStateAction<boolean>>;
 }) {
   const [fileText, setFileText] = useState("");
@@ -26,7 +28,10 @@ export function ReadFile({
   const readFile = (e: ChangeEvent<HTMLInputElement>) => {
     setFileText("");
     setSaved(false);
-    setContent("");
+    setState((current) => ({
+      ...current,
+      envariables: "",
+    }));
     const file = e.target.files![0];
     const reader = new FileReader();
     reader.onload = (fileReader) => {
@@ -47,18 +52,10 @@ export function ReadFile({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>
-            Upload{" "}
-            <span className="border p-[2px] rounded-sm bg-gray-100">.env</span>{" "}
-            File
-          </DialogTitle>
+          <DialogTitle>Upload File</DialogTitle>
           <DialogDescription className="leading-relaxed">
             Provide your env file and we will get all the envs for you. make
-            sure all your entries are in{" "}
-            <span className="border p-[2px] rounded-sm bg-gray-100">
-              key=value
-            </span>{" "}
-            pair.
+            sure all your entries are in `key=value` pair.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -76,7 +73,10 @@ export function ReadFile({
             disabled={saved}
             onClick={() => {
               if (fileText !== "") {
-                setContent(fileText);
+                setState((current) => ({
+                  ...current,
+                  envariables: fileText,
+                }));
                 setSaved(true);
               }
             }}
