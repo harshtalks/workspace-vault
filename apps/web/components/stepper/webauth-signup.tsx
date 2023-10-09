@@ -48,7 +48,7 @@ export function WebAuthSignup({ className, ...props }: CardProps) {
 
         const jwt = await new SignJWT({ userId })
           .setProtectedHeader({ alg })
-          .setExpirationTime("2h")
+          .setExpirationTime("24h")
           .sign(secret);
 
         const response = await fetch("/api/internal/jwt", {

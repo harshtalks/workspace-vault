@@ -12,10 +12,15 @@ import { Textarea } from "@ui/components/ui/textarea";
 import React, { useState } from "react";
 import { WhatServerPromisedMeUponTheirSuccess } from "../page";
 import { toast } from "sonner";
-import { secretDB } from "@/utils/local-store";
-import { decryptTextWithAESGCM } from "cryptography";
+import { localKeyForBrowser, secretDB } from "@/utils/local-store";
+import {
+  decryptTextWithAESGCM,
+  generateMasterKey,
+  getSalt,
+} from "cryptography";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { WorkspaceResponse } from "@/middlewares/type";
 
 const Details = ({
   results,
@@ -31,11 +36,12 @@ const Details = ({
 
   const router = useRouter();
 
-  const [canEdit, setEdit] = useState(false);
   const [isEncrypted, setIsEncrypted] = useState(false);
   const [variable, setVariable] = useState(results.result.variables);
+  const [loading, setLoading] = useState(false);
 
   const decryptIt = async () => {
+    setLoading(true);
     try {
       await secretDB.open();
 
@@ -45,17 +51,40 @@ const Details = ({
         throw new Error("No key available to decrypt it.");
       }
 
-      const key = getMasterKey.key;
+      const encryptedSecret = getMasterKey.key;
 
       // encrypting..
 
-      const decryptedText = await decryptTextWithAESGCM(variable, key);
+      const localKey = await localKeyForBrowser();
+      const decryptedSecret = await decryptTextWithAESGCM(
+        encryptedSecret,
+        localKey
+      );
+
+      const response = await fetch("/api/secret/verify-secret", {
+        method: "POST",
+        body: JSON.stringify({
+          workspace: workspace,
+          secretValue: decryptedSecret,
+        }),
+      });
+
+      const responseJson: WorkspaceResponse<boolean> = await response.json();
+
+      if (responseJson.status === "error") {
+        throw new Error(responseJson.error);
+      }
+
+      const masterkey = await generateMasterKey(decryptedSecret, getSalt());
+      const decryptedText = await decryptTextWithAESGCM(variable, masterkey);
 
       setIsEncrypted(true);
       setVariable(decryptedText);
       toast.success("Lesssgo, Decrypted envs...");
     } catch (error) {
       error instanceof Error && toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -111,7 +140,12 @@ const Details = ({
         </div>
       </CardContent>
       <CardFooter className="flex gap-4">
-        <Button onClick={decryptIt} disabled={isEncrypted}>
+        <Button onClick={decryptIt} disabled={loading || isEncrypted}>
+          {loading ? (
+            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <></>
+          )}
           Decrypt File
         </Button>
         <Link
@@ -134,11 +168,6 @@ const Details = ({
 
         <Button variant="outline">
           {/* onClick={handler} disabled={isLoading}> */}
-          {/* {isLoading ? (
-            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <></>
-          )} */}
           Share File
         </Button>
       </CardFooter>

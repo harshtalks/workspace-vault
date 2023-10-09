@@ -28,7 +28,7 @@ export const POST = async (request: NextRequest) => {
         status: "success",
         result: true,
       } as WorkspaceSuccess<Boolean>,
-      { status: 201 }
+      { status: 200 }
     );
   } catch (error) {
     return Response.json(

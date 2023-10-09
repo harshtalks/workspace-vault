@@ -1,8 +1,9 @@
+import { generateMasterKey, getSalt } from "cryptography";
 import Dexie from "dexie";
 
 // Define your database schema using Dexie.js
 class WorkspaceVault extends Dexie {
-  secrets: Dexie.Table<{ workspace: string; key: CryptoKey }, string>;
+  secrets: Dexie.Table<{ workspace: string; key: string }, string>;
 
   constructor() {
     super("WorkspaceVault");
@@ -16,3 +17,6 @@ class WorkspaceVault extends Dexie {
 }
 
 export const secretDB = new WorkspaceVault();
+
+export const localKeyForBrowser = async () =>
+  generateMasterKey("hello world", getSalt());

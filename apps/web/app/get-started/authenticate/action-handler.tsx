@@ -28,7 +28,7 @@ const ActionHandler = () => {
 
         const jwt = await new SignJWT({ userId })
           .setProtectedHeader({ alg })
-          .setExpirationTime("2h")
+          .setExpirationTime("24h")
           .sign(secret);
 
         const response = await fetch("/api/internal/jwt", {
@@ -41,8 +41,7 @@ const ActionHandler = () => {
         const _ = await response.json();
 
         toast.message("Congrats", {
-          description:
-            "your key is generated for this device and specified method: ",
+          description: "your key is generated for this device.",
         });
       }
 

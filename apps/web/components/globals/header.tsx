@@ -14,14 +14,12 @@ const Header = () => {
           Workspace<span className="text-zinc-400">Vault</span>
         </Link>
         <div className="flex items-center gap-4">
-          <Link href="/">
-            <div className="flex items-center space-x-2">
-              <GitHubLogoIcon /> <p>Github</p>
-            </div>
-          </Link>
           <Deauthenticate />
           <UserButton afterSignOutUrl="/" />
           <ToggleTheme />
+          <Link href="/">
+            <GitHubLogoIcon className="h-6 w-6" />
+          </Link>
         </div>
       </div>
     </div>

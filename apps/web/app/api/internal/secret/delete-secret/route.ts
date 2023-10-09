@@ -2,12 +2,12 @@ import { PrismaClient } from "database";
 
 export const POST = async (request: Request) => {
   const prisma = new PrismaClient();
-  const { userId } = (await request.json()) as { userId: string };
+  const { workspace } = (await request.json()) as { workspace: string };
 
   try {
     const secret = await prisma.secret.findFirst({
       where: {
-        userId,
+        orgId: workspace,
       },
     });
 
@@ -19,7 +19,7 @@ export const POST = async (request: Request) => {
 
     const secretDeleted = prisma.secret.delete({
       where: {
-        userId,
+        id: secret.id,
       },
     });
 

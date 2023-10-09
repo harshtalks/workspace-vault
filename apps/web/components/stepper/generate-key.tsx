@@ -9,11 +9,16 @@ import {
   EyeNoneIcon,
   ReloadIcon,
 } from "@radix-ui/react-icons";
-import { generateMasterKey, generatePassword, getSalt } from "cryptography";
+import {
+  encryptTextWithAESGCM,
+  generateMasterKey,
+  generatePassword,
+  getSalt,
+} from "cryptography";
 
 import * as React from "react";
 import copy from "copy-to-clipboard";
-import { secretDB } from "@/utils/local-store";
+import { localKeyForBrowser, secretDB } from "@/utils/local-store";
 import { useAuth } from "@clerk/nextjs";
 import { WorkspaceResponse } from "@/middlewares/type";
 import { Secret } from "database";
@@ -50,11 +55,6 @@ function GenerateKey({
 
     try {
       setIsLoading(true);
-      // generate master key
-      const saltValue = getSalt();
-
-      // master key
-      const masterKey = await generateMasterKey(secret, saltValue);
 
       // saving in the prisma store
       const savedHashResponse = await fetch("/api/secret/store", {
@@ -80,10 +80,16 @@ function GenerateKey({
         await secretDB.secrets.delete(workspace);
       }
 
+      // secret handled carefully here.
+
+      const localKey = await localKeyForBrowser();
+
+      const encryptedSecret = await encryptTextWithAESGCM(secret, localKey);
+
       const key = await secretDB.secrets.add(
         {
           workspace: workspace,
-          key: masterKey,
+          key: encryptedSecret,
         },
         workspace
       );

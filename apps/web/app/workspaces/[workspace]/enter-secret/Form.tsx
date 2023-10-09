@@ -2,7 +2,7 @@
 import { useIphonePassword } from "@/hooks/use-iphone-password";
 import useSecret from "@/hooks/use-secret";
 import { WorkspaceResponse } from "@/middlewares/type";
-import { secretDB } from "@/utils/local-store";
+import { localKeyForBrowser, secretDB } from "@/utils/local-store";
 import {
   EyeClosedIcon,
   EyeNoneIcon,
@@ -12,7 +12,11 @@ import {
 import { Button } from "@ui/components/ui/button";
 import { Input } from "@ui/components/ui/input";
 import { Skeleton } from "@ui/components/ui/skeleton";
-import { generateMasterKey, getSalt } from "cryptography";
+import {
+  encryptTextWithAESGCM,
+  generateMasterKey,
+  getSalt,
+} from "cryptography";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "sonner";
@@ -52,20 +56,18 @@ const Form = ({ workspace }: { workspace: string }) => {
         throw new Error(responseJson.error);
       }
 
-      // generate master key
-      const saltValue = getSalt();
-
-      // master key
-      const masterKey = await generateMasterKey(value, saltValue);
-
       await secretDB.open();
 
       await secretDB.secrets.delete(workspace);
 
+      const localKey = await localKeyForBrowser();
+
+      const encryptedSecret = await encryptTextWithAESGCM(value, localKey);
+
       await secretDB.secrets.add(
         {
           workspace: workspace,
-          key: masterKey,
+          key: encryptedSecret,
         },
         workspace
       );

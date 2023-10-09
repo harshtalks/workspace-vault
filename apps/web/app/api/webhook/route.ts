@@ -7,7 +7,7 @@ import { redirect } from "next/dist/server/api-utils";
 
 export const POST = async (request: NextRequest) => {
   // Webhook secrets
-  const WEBHOOK_SECRET = "whsec_iTrQbQA05U2rZfRTmuyagUOk4yC8LzcB";
+  const WEBHOOK_SECRET = "whsec_bNRMZ7o2nvrxUt4xnpP4uRsjEkESM/z8";
 
   const prisma = new PrismaClient();
 
@@ -69,6 +69,7 @@ export const POST = async (request: NextRequest) => {
           firstName: event.data.first_name,
           lastName: event.data.last_name,
           created_at: new Date(event.data.created_at),
+          ...(event.data.has_image && { avatar: event.data.image_url }),
         },
       });
       console.log(`user with and ID of ${id} is saved in database.`);

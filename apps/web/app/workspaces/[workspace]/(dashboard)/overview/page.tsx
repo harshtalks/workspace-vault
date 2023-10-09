@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import {
   Card,
   CardContent,
@@ -7,8 +7,13 @@ import {
   CardTitle,
 } from "@ui/components/ui/card";
 import Members from "./components/members";
+import { Button } from "@ui/components/ui/button";
+import { Separator } from "@ui/components/ui/separator";
+import AddMembers from "./components/add-members";
+import { WorkspaceActivities } from "./components/workspace-activities";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
-const page = () => {
+const page = ({ params }: { params: { workspace: string } }) => {
   return (
     <div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -105,17 +110,44 @@ const page = () => {
           </CardContent>
         </Card>
       </div>
-      <div className="grid grid-cols-3 py-4">
+      <div className="grid grid-cols-3 gap-4 py-4">
         <Card className="col-span-1">
           <CardHeader>
             <CardTitle>Workspace Members</CardTitle>
-            <CardDescription>98 Members in the workspaces.</CardDescription>
+            <CardDescription>
+              <>
+                <p>Members in the workspaces.</p>
+                <div className="py-2">
+                  <AddMembers workspace={params.workspace} />
+                </div>
+                <Separator />
+              </>
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <Members />
+            {/* @ts-expect-error React Server Componenets  */}
+            <Members workspace={params.workspace} />
           </CardContent>
         </Card>
-        <div></div>
+        <Card className="col-span-1">
+          <CardHeader>
+            <h2 className="font-semibold text-xl">Recent Activities</h2>
+            <Separator />
+          </CardHeader>
+          <CardContent>
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center">
+                  <ReloadIcon className="h-4 w-4 mr-2 animate-spin" />{" "}
+                  loading...
+                </div>
+              }
+            >
+              {/* @ts-ignore Async Server Components */}
+              <WorkspaceActivities workspace={params.workspace} />
+            </Suspense>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

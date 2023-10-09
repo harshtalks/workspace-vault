@@ -40,7 +40,7 @@ const Layout = async ({
   return (
     <div>
       {response ? (
-        children
+        <div className="pb-12">{children}</div>
       ) : (
         <div className="pt-24">
           <div className="flex flex-col items-center justify-center gap-2">

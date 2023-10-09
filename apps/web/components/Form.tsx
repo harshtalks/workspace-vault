@@ -16,8 +16,13 @@ import Link from "next/link";
 import { EyeOpenIcon, EyeNoneIcon, ReloadIcon } from "@radix-ui/react-icons";
 import { ReadFile } from "./read-file";
 import { atom, useRecoilState } from "recoil";
-import { secretDB } from "@/utils/local-store";
-import { decryptTextWithAESGCM, encryptTextWithAESGCM } from "cryptography";
+import { localKeyForBrowser, secretDB } from "@/utils/local-store";
+import {
+  decryptTextWithAESGCM,
+  encryptTextWithAESGCM,
+  generateMasterKey,
+  getSalt,
+} from "cryptography";
 import { EnvAPIRequestBody } from "@/app/api/envs/route";
 import { WorkspaceResponse } from "@/middlewares/type";
 import { EnvironmentVariables } from "database";
@@ -67,13 +72,34 @@ export function Form({
       try {
         await secretDB.open();
 
-        const getMasterKey = await secretDB.secrets.get(workspace);
+        const getSecret = await secretDB.secrets.get(workspace);
 
-        if (!getMasterKey) {
+        if (!getSecret) {
           throw new Error("No key available to decrypt it.");
         }
 
-        const key = getMasterKey.key;
+        const localKey = await localKeyForBrowser();
+
+        const decryptedSecret = await decryptTextWithAESGCM(
+          getSecret.key,
+          localKey
+        );
+
+        const response = await fetch("/api/secret/verify-secret", {
+          method: "POST",
+          body: JSON.stringify({
+            workspace: workspace,
+            secretValue: decryptedSecret,
+          }),
+        });
+
+        const responseJson: WorkspaceResponse<boolean> = await response.json();
+
+        if (responseJson.status === "error") {
+          throw new Error(responseJson.error);
+        }
+
+        const key = await generateMasterKey(decryptedSecret, getSalt());
 
         // encrypting..
 
@@ -117,7 +143,7 @@ export function Form({
   // handler
   const handler = async () => {
     try {
-      const validationError = state.envariables === "" && state.name === "";
+      const validationError = state.envariables === "" || state.name === "";
       if (validationError) {
         throw new Error("Invalid value for the name, and env variables.");
       }
@@ -126,16 +152,25 @@ export function Form({
 
       // getting the master key
       await secretDB.open();
-      const masterKey = await secretDB.secrets.get(workspace);
+      const getSecret = await secretDB.secrets.get(workspace);
 
-      if (!masterKey) {
+      if (!getSecret) {
         throw new Error("No keys were found with this workspace locally.");
       }
+
+      const localKey = await localKeyForBrowser();
+
+      const decryptedSecret = await decryptTextWithAESGCM(
+        getSecret.key,
+        localKey
+      );
+
+      const masterKey = await generateMasterKey(decryptedSecret, getSalt());
 
       // crypto work.
       const encryptedEnvs = await encryptTextWithAESGCM(
         state.envariables,
-        masterKey.key
+        masterKey
       );
 
       // hitting the database here:

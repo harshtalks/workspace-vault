@@ -1,68 +1,75 @@
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@ui/components/ui/avatar";
+import { PrismaClient } from "database";
+import { Badge } from "@ui/components/badge";
+import { ScrollArea } from "@ui/components/ui/scroll-area";
+import { cn } from "@ui/lib/utils";
 
-const Members = () => {
-  return (
-    <div className="space-y-8">
-      <div className="flex items-center">
-        <Avatar className="h-9 w-9">
-          <AvatarImage src="/avatars/01.png" alt="Avatar" />
-          <AvatarFallback>OM</AvatarFallback>
-        </Avatar>
-        <div className="ml-4 space-y-1">
-          <p className="text-sm font-medium leading-none">Olivia Martin</p>
-          <p className="text-sm text-muted-foreground">
-            olivia.martin@email.com
-          </p>
-        </div>
-        <div className="ml-auto font-medium">+$1,999.00</div>
+const fetchMemberForTheOrg = async (workspace: string) => {
+  const prismaClient = new PrismaClient();
+  try {
+    const members = await prismaClient.orgMember.findMany({
+      where: {
+        orgId: workspace,
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    return {
+      status: "success",
+      result: members,
+    };
+  } catch (error) {
+    return { status: "error", error: error instanceof Error && error.message };
+  } finally {
+    prismaClient.$disconnect();
+  }
+};
+
+export const capitalize = (name: string) =>
+  name[0].toUpperCase() + name.slice(1);
+
+const Members = async ({ workspace }: { workspace: string }) => {
+  const members = await fetchMemberForTheOrg(workspace);
+  return members.status === "success" ? (
+    <ScrollArea
+      className={cn(
+        "w-full",
+        members.result.length >= 5 && "overflow-hidden h-[400px]"
+      )}
+    >
+      <div className="space-y-8 pr-2.5">
+        {members.result.map((member) => (
+          <div className="flex items-center">
+            <Avatar className="h-9 w-9">
+              <AvatarImage src={member.user.avatar} alt="Avatar" />
+              <AvatarFallback>
+                {member.user.firstName[0].toUpperCase() +
+                  member.user.lastName[0].toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="ml-4 space-y-1">
+              <p className="text-sm font-medium leading-none">
+                {capitalize(member.user.firstName) +
+                  " " +
+                  capitalize(member.user.lastName)}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {member.user.email}
+              </p>
+            </div>
+            <div className="ml-auto">
+              <Badge variant="outline">{capitalize(member.role)}</Badge>
+            </div>
+          </div>
+        ))}
       </div>
-      <div className="flex items-center">
-        <Avatar className="flex h-9 w-9 items-center justify-center space-y-0 border">
-          <AvatarImage src="/avatars/02.png" alt="Avatar" />
-          <AvatarFallback>JL</AvatarFallback>
-        </Avatar>
-        <div className="ml-4 space-y-1">
-          <p className="text-sm font-medium leading-none">Jackson Lee</p>
-          <p className="text-sm text-muted-foreground">jackson.lee@email.com</p>
-        </div>
-        <div className="ml-auto font-medium">+$39.00</div>
-      </div>
-      <div className="flex items-center">
-        <Avatar className="h-9 w-9">
-          <AvatarImage src="/avatars/03.png" alt="Avatar" />
-          <AvatarFallback>IN</AvatarFallback>
-        </Avatar>
-        <div className="ml-4 space-y-1">
-          <p className="text-sm font-medium leading-none">Isabella Nguyen</p>
-          <p className="text-sm text-muted-foreground">
-            isabella.nguyen@email.com
-          </p>
-        </div>
-        <div className="ml-auto font-medium">+$299.00</div>
-      </div>
-      <div className="flex items-center">
-        <Avatar className="h-9 w-9">
-          <AvatarImage src="/avatars/04.png" alt="Avatar" />
-          <AvatarFallback>WK</AvatarFallback>
-        </Avatar>
-        <div className="ml-4 space-y-1">
-          <p className="text-sm font-medium leading-none">William Kim</p>
-          <p className="text-sm text-muted-foreground">will@email.com</p>
-        </div>
-        <div className="ml-auto font-medium">+$99.00</div>
-      </div>
-      <div className="flex items-center">
-        <Avatar className="h-9 w-9">
-          <AvatarImage src="/avatars/05.png" alt="Avatar" />
-          <AvatarFallback>SD</AvatarFallback>
-        </Avatar>
-        <div className="ml-4 space-y-1">
-          <p className="text-sm font-medium leading-none">Sofia Davis</p>
-          <p className="text-sm text-muted-foreground">sofia.davis@email.com</p>
-        </div>
-        <div className="ml-auto font-medium">+$39.00</div>
-      </div>
+    </ScrollArea>
+  ) : (
+    <div>
+      <p>{members.error}</p>
     </div>
   );
 };
