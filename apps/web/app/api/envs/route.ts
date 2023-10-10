@@ -55,7 +55,7 @@ export const POST = async (request: NextRequest) => {
         status: "success",
       } as WorkspaceSuccess<EnvironmentVariables>,
       {
-        status: 400,
+        status: 201,
       }
     );
   } catch (error) {

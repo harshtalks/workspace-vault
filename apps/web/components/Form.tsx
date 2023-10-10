@@ -28,6 +28,11 @@ import { WorkspaceResponse } from "@/middlewares/type";
 import { EnvironmentVariables } from "database";
 import { toast } from "sonner";
 import { GetEnvDataFromServer } from "@/app/workspaces/[workspace]/(dashboard)/files/[env]/page";
+import {
+  AccessProps,
+  RedisFileAccess,
+} from "@/app/api/workspaces/access/route";
+import { useAuth } from "@clerk/nextjs";
 
 export type AddNewEnvProps = {
   envariables: string;
@@ -45,6 +50,8 @@ export function Form({
   const [hideEnvs, setHideEnvs] = React.useState(false);
   const [isClient, setIsClient] = React.useState(false);
   const [showError, setError] = React.useState(false);
+
+  const { userId } = useAuth();
 
   const [state, setState] = useRecoilState(
     atom<AddNewEnvProps>({
@@ -197,13 +204,27 @@ export function Form({
         throw new Error(responseWhenDatabaseResponded.error);
       }
 
-      toast.success(
-        `We have encrypted and saved your envs for future usages. id result: ${responseWhenDatabaseResponded.result.id}`
-      );
+      const redisAccessLog: AccessProps = {
+        userId,
+        workspaceId: workspace,
+        envFileId: responseWhenDatabaseResponded.result.id,
+        accessType: "write",
+      };
+
+      const givingServerTheData = await fetch("/api/workspaces/access", {
+        method: "POST",
+        body: JSON.stringify(redisAccessLog),
+      });
+
+      const whatTheHellServerSaid: WorkspaceResponse<RedisFileAccess> =
+        await givingServerTheData.json();
+
+      if (whatTheHellServerSaid.status === "error") {
+        throw new Error(whatTheHellServerSaid.error);
+      }
+      return responseWhenDatabaseResponded;
     } catch (error) {
-      error instanceof Error
-        ? toast.error(`${error.name}: ${error.message}`)
-        : toast.error(`An error occured! Please try again.`);
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -340,7 +361,19 @@ export function Form({
         </form>
       </CardContent>
       <CardFooter className="flex gap-4">
-        <Button onClick={handler} disabled={isLoading}>
+        <Button
+          onClick={() => {
+            toast.promise(handler, {
+              loading: "Loading...",
+              success: (env) => {
+                return `new file "${env.result.name}" with id ${env.result.id} has been created and you have been added to the logs.`;
+              },
+              error: (errorState) =>
+                `Error: ${errorState instanceof Error && errorState.message}`,
+            });
+          }}
+          disabled={isLoading}
+        >
           {isLoading ? (
             <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
           ) : (

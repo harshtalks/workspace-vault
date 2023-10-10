@@ -21,7 +21,6 @@ const layout = ({
           <div className="flex-1 space-y-4 px-8 border-b pt-6 pb-4">
             <div className="flex items-center justify-between space-y-2">
               <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-              <Button>Add New File</Button>
             </div>
           </div>
           <div className="px-8 py-6">

@@ -25,6 +25,7 @@ export interface RedisActivityForWorkspace {
   email: string;
   action: "added" | "deleted";
   members: MembersActivityData[];
+  timestamp: number;
 }
 
 export interface MembersActivityData {
@@ -100,6 +101,7 @@ export const POST = async (request: Request) => {
       email: user.emailAddresses[0].emailAddress,
       action: "added",
       members: membersActivityData,
+      timestamp,
     };
 
     await redisClient.zadd(`recentActivities:${body.workspace}`, {

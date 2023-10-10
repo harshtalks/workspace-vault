@@ -4,8 +4,6 @@ import { redisClient } from "@/store/redis";
 import { WorkspaceResponse } from "@/middlewares/type";
 import { Badge } from "@ui/components/ui/badge";
 import ActvitiyList from "./activity-list";
-import { ScrollArea } from "@ui/components/ui/scroll-area";
-import { cn } from "@ui/lib/utils";
 
 // await async lol
 async function fetchRecentActivitiesForTheWorkspace<TData>(

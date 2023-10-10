@@ -9,6 +9,7 @@ import {
   CollapsibleTrigger,
 } from "@ui/components/collapsible";
 import { Avatar, AvatarFallback, AvatarImage } from "@ui/components/ui/avatar";
+import { Badge } from "@ui/components/ui/badge";
 import React from "react";
 
 const ActvitiyList = ({ result }: { result: RedisActivityForWorkspace[] }) => {
@@ -37,7 +38,10 @@ const CollapsibleComponent = ({
       <div className="flex items-center justify-between space-x-4">
         <div>
           <h4 className="text-sm font-semibold">{activity.email}</h4>
-          <p className="text-sm">
+          <Badge className="text-xs mt-1 font-regular py-1">
+            {new Date(activity.timestamp).toLocaleString()}
+          </Badge>
+          <p className="text-sm mt-2">
             {activity.action === "added" ? "Added" : "Deleted"}{" "}
             {activity.members.length} new{" "}
             {activity.members.length > 1 ? "users" : "user"}
@@ -50,7 +54,7 @@ const CollapsibleComponent = ({
           </Button>
         </CollapsibleTrigger>
       </div>
-      <div className="flex items-center space-x-4 rounded-md border px-4 py-2 font-mono text-sm shadow-sm">
+      <div className="flex items-center space-x-4 rounded-md border px-4 py-2 font-mono overflow-hidden text-sm shadow-sm">
         <Avatar>
           <AvatarImage src={activity.members[0].avatar} />
           <AvatarFallback>
@@ -70,7 +74,7 @@ const CollapsibleComponent = ({
       </div>
       <CollapsibleContent className="space-y-2">
         {activity.members.slice(1).map((member) => (
-          <div className="flex items-center space-x-4 rounded-md border px-4 py-2 font-mono text-sm shadow-sm">
+          <div className="flex items-center space-x-4 rounded-md border px-4 py-2 font-mono text-sm shadow-sm overflow-hidden">
             <Avatar>
               <AvatarImage src={member.avatar} />
               <AvatarFallback>

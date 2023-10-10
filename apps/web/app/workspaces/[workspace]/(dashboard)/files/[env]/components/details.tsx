@@ -21,6 +21,9 @@ import {
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { WorkspaceResponse } from "@/middlewares/type";
+import { AccessProps } from "@/app/api/workspaces/access/route";
+import { useAuth } from "@clerk/nextjs";
+import copy from "copy-to-clipboard";
 
 const Details = ({
   results,
@@ -39,6 +42,8 @@ const Details = ({
   const [isEncrypted, setIsEncrypted] = useState(false);
   const [variable, setVariable] = useState(results.result.variables);
   const [loading, setLoading] = useState(false);
+
+  const { userId } = useAuth();
 
   const decryptIt = async () => {
     setLoading(true);
@@ -80,7 +85,33 @@ const Details = ({
 
       setIsEncrypted(true);
       setVariable(decryptedText);
-      toast.success("Lesssgo, Decrypted envs...");
+      copy(decryptedText);
+      toast.success("Lesssgo, Decrypted envs... and copied to your clipboard");
+
+      // api call for redis..
+
+      const bodyForOurRedisData: AccessProps = {
+        accessType: "read",
+        envFileId: results.result.id,
+        userId: userId,
+        workspaceId: workspace,
+      };
+
+      const addToRedisMonitoring = await fetch("/api/workspaces/access", {
+        method: "POST",
+        body: JSON.stringify(bodyForOurRedisData),
+      });
+
+      const convertOurRedisResponseToJson: WorkspaceResponse<boolean> =
+        await addToRedisMonitoring.json();
+
+      if (convertOurRedisResponseToJson.status === "error") {
+        throw new Error(convertOurRedisResponseToJson.error);
+      }
+
+      toast.success(
+        `You've read the file succesfully, and have been added to logs.`
+      );
     } catch (error) {
       error instanceof Error && toast.error(error.message);
     } finally {

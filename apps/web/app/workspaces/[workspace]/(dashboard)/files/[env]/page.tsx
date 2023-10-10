@@ -110,7 +110,16 @@ const Page = async ({
               />
             </div>
             <div className="w-[400px]">
-              <Accessed />
+              <Suspense
+                fallback={
+                  <div className="flex items-center">
+                    <ReloadIcon className="h-4 w-4 mr-2" /> loading...
+                  </div>
+                }
+              >
+                {/* @ts-ignore Async Server Components  */}
+                <Accessed envId={params.env} />
+              </Suspense>
             </div>
           </div>
         )}

@@ -1,7 +1,7 @@
 import { Redis } from "@upstash/redis";
 
 export const redisClient = new Redis({
-  url: "https://apn1-relative-elk-34945.upstash.io",
+  url: "https://apn1-pretty-troll-34970.upstash.io",
   token:
-    "AYiBASQgMDg5MTJhNTItY2Q4OS00MmI3LTgwZmMtMjNlZjdkMTlmNzA3MTYwZjE3NDQxZTIxNDkzMmEzNmFmZjdhYjFlMTRjNmM=",
+    "AYiaASQgMzA2ODIyZDUtZGY5MS00ZTAzLThlY2QtODhlODRiYmJiMjJmZTcwYjQ1NzliMjU3NGZhOGI3ODZhNTg2MmQ4OTc1NTY=",
 });

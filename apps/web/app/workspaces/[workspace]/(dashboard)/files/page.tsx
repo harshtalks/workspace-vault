@@ -9,6 +9,8 @@ import {
   WorkspaceSuccess,
 } from "@/middlewares/type";
 import { EnvironmentVariables, PrismaClient } from "database";
+import { Button } from "@ui/components/ui/button";
+import Link from "next/link";
 
 async function getData(workspace: string) {
   // Fetch data from your API here.
@@ -49,7 +51,9 @@ const page = async ({ params }: { params: { workspace: string } }) => {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Deauthenticate />
+          <Link href={`workspaces/${params.workspace}/add-new-file`}>
+            <Button>Add New File</Button>
+          </Link>
         </div>
       </div>
       {data.status === "success" ? (

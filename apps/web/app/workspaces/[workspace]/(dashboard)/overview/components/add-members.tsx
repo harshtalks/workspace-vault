@@ -294,16 +294,13 @@ export default function AddMembers({ workspace }: { workspace: string }) {
                   loading: "Loading...",
                   success: (users) => {
                     return `The ${users.length} ${
-                      users.length > 1 ? "have" : "has"
+                      users.length > 1 ? "users have" : "user has"
                     } been added`;
                   },
                   error: (errorState) =>
                     `Error: ${
                       errorState instanceof Error && errorState.message
                     }`,
-                  finally: () => {
-                    window.location.reload();
-                  },
                 });
               }}
             >
