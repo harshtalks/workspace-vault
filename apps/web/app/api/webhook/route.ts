@@ -7,7 +7,7 @@ import { redirect } from "next/dist/server/api-utils";
 
 export const POST = async (request: NextRequest) => {
   // Webhook secrets
-  const WEBHOOK_SECRET = "whsec_bNRMZ7o2nvrxUt4xnpP4uRsjEkESM/z8";
+  const WEBHOOK_SECRET = process.env.NEXT_PUBLIC_CLERK_WEBHOOK;
 
   const prisma = new PrismaClient();
 
@@ -91,6 +91,8 @@ export const POST = async (request: NextRequest) => {
     console.log("cookie is deleted:", request.cookies.get("webAuthn"));
     request.cookies.delete("webAuthn");
   }
+
+  prisma.$disconnect();
 
   return new Response(JSON.stringify({ id: id }), { status: 201 });
 };

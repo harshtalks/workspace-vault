@@ -33,6 +33,7 @@ import {
   RedisFileAccess,
 } from "@/app/api/workspaces/access/route";
 import { useAuth } from "@clerk/nextjs";
+import { getName } from "@/utils/random-name-generator";
 
 export type AddNewEnvProps = {
   envariables: string;
@@ -106,7 +107,14 @@ export function Form({
           throw new Error(responseJson.error);
         }
 
-        const key = await generateMasterKey(decryptedSecret, getSalt());
+        if (!process.env.NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY) {
+          throw new Error("Error ocurred while generating the master key.");
+        }
+
+        const key = await generateMasterKey(
+          decryptedSecret,
+          getSalt(process.env.NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY)
+        );
 
         // encrypting..
 
@@ -172,7 +180,14 @@ export function Form({
         localKey
       );
 
-      const masterKey = await generateMasterKey(decryptedSecret, getSalt());
+      if (!process.env.NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY) {
+        throw new Error("Error ocurred while generating the master key.");
+      }
+
+      const masterKey = await generateMasterKey(
+        decryptedSecret,
+        getSalt(process.env.NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY)
+      );
 
       // crypto work.
       const encryptedEnvs = await encryptTextWithAESGCM(
@@ -315,17 +330,14 @@ export function Form({
                     required
                   />
                 </div>
-                <p className="text-xs text-zinc-400">
-                  Learn more about TTL{" "}
-                  <Link
-                    href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Strategies.html#Strategies.WithTTL"
-                    target="_blank"
-                    className="underline hover:text-foreground"
-                  >
-                    here.
-                  </Link>{" "}
-                  Empty Field is assumed as 24 hours
-                </p>
+                <div
+                  onClick={() =>
+                    setState((state) => ({ ...state, name: getName() }))
+                  }
+                  className="text-xs select-none text-muted-foreground cursor-pointer hover:underline focus:underline"
+                >
+                  Generate random name by clicking here.
+                </div>
               </div>
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="number_of_reads">

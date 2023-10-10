@@ -64,6 +64,8 @@ export const GET = async (request: NextApiRequest) => {
       userId: user.userId,
     };
 
+    prismaClient.$disconnect();
+
     return new NextResponse(
       JSON.stringify({
         status: "success",

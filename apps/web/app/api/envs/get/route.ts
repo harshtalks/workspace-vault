@@ -1,10 +1,10 @@
 import { WorkspaceError, WorkspaceSuccess } from "@/middlewares/type";
-import { EnvironmentVariables, PrismaClient } from "database";
+import { EnvironmentVariables, prismaClient } from "database";
 import { NextRequest } from "next/server";
 
 export const POST = async (request: NextRequest) => {
   try {
-    const prisma = new PrismaClient();
+    const prisma = prismaClient;
 
     const body = await request.json();
 

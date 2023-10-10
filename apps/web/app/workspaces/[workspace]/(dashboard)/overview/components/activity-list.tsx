@@ -54,7 +54,7 @@ const CollapsibleComponent = ({
           </Button>
         </CollapsibleTrigger>
       </div>
-      <div className="flex items-center space-x-4 rounded-md border px-4 py-2 font-mono overflow-hidden text-sm shadow-sm">
+      <div className="flex items-center space-x-4 rounded-md border px-4 py-2 font-mono overflow-scroll text-sm shadow-sm">
         <Avatar>
           <AvatarImage src={activity.members[0].avatar} />
           <AvatarFallback>
@@ -67,7 +67,7 @@ const CollapsibleComponent = ({
           <p className="text-sm font-medium leading-none">
             {activity.members[0].fullname}
           </p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {activity.members[0].email}
           </p>
         </div>
@@ -85,7 +85,7 @@ const CollapsibleComponent = ({
               <p className="text-sm font-medium leading-none">
                 {member.fullname}
               </p>
-              <p className="text-sm text-muted-foreground">{member.email}</p>
+              <p className="text-xs text-muted-foreground">{member.email}</p>
             </div>
           </div>
         ))}

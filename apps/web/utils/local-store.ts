@@ -18,5 +18,16 @@ class WorkspaceVault extends Dexie {
 
 export const secretDB = new WorkspaceVault();
 
-export const localKeyForBrowser = async () =>
-  generateMasterKey("hello world", getSalt());
+export const localKeyForBrowser = async () => {
+  if (
+    !process.env.NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY ||
+    !process.env.NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY_WEB
+  ) {
+    throw new Error("Error ocurred while generating the master key.");
+  }
+
+  return generateMasterKey(
+    process.env.NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY_WEB,
+    getSalt(process.env.NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY)
+  );
+};

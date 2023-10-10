@@ -1,7 +1,7 @@
-import { PrismaClient } from "database";
+import { prismaClient } from "database";
 
 export const POST = async (request: Request) => {
-  const prisma = new PrismaClient();
+  const prisma = prismaClient;
   const { workspace } = (await request.json()) as { workspace: string };
 
   try {

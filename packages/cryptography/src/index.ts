@@ -1,3 +1,6 @@
+import "dotenv/config";
+console.log(process.env);
+
 export const generateMasterKey = async (secret: string, salt: Uint8Array) => {
   // Define the initial key material (e.g., an AES key)
   try {
@@ -35,10 +38,9 @@ export const generateMasterKey = async (secret: string, salt: Uint8Array) => {
   }
 };
 
-export const getSalt = () =>
-  new Uint8Array(
-    Buffer.from("152,191,213,122,205,48,159,48,165,71,119,217,232,128,226,230")
-  );
+export const getSalt = (str: string) => {
+  return new Uint8Array(Buffer.from(str));
+};
 
 export async function encryptTextWithAESGCM(
   text: string,

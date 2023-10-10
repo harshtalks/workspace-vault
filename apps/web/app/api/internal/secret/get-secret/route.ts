@@ -1,13 +1,13 @@
-import { PrismaClient } from "database";
+import { PrismaClient, prismaClient } from "database";
 
 export const POST = async (request: Request) => {
-  const prisma = new PrismaClient();
-  const { userId } = (await request.json()) as { userId: string };
+  const prisma = prismaClient;
+  const { workspace } = (await request.json()) as { workspace: string };
 
   try {
     const secret = await prisma.secret.findFirst({
       where: {
-        userId,
+        orgId: workspace,
       },
     });
 

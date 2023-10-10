@@ -3,6 +3,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@ui/components/ui/card";
@@ -12,6 +13,9 @@ import { Separator } from "@ui/components/ui/separator";
 import AddMembers from "./components/add-members";
 import { WorkspaceActivities } from "./components/workspace-activities";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import WorkspaceInfo from "./components/workspace-info";
+import { workerData } from "worker_threads";
+import Link from "next/link";
 
 const page = ({ params }: { params: { workspace: string } }) => {
   return (
@@ -147,6 +151,33 @@ const page = ({ params }: { params: { workspace: string } }) => {
               <WorkspaceActivities workspace={params.workspace} />
             </Suspense>
           </CardContent>
+        </Card>
+        <Card className="col-span-1">
+          <CardHeader>
+            <CardTitle>Workspace Information</CardTitle>
+            <CardDescription>
+              <p>Complete workspace information available here...</p>
+              <Separator className="mt-2" />
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Suspense
+              fallback={
+                <div className="flex items-center w-full p-4">
+                  <ReloadIcon className="h-4 w-4 mr-2" />
+                  <p>loading....</p>
+                </div>
+              }
+            >
+              {/* @ts-ignore Async Server Component */}
+              <WorkspaceInfo workspace={params.workspace} />
+            </Suspense>
+          </CardContent>
+          <CardFooter>
+            <Link href={`workspaces/${params.workspace}/settings`}>
+              <Button variant="secondary">Edit workspace settings</Button>
+            </Link>
+          </CardFooter>
         </Card>
       </div>
     </div>

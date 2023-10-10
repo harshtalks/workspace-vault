@@ -14,10 +14,13 @@ import { NextApiRequest } from "next";
 import { PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/server/script/deps";
 
 export const GET = async (request: NextApiRequest) => {
+  if (!process.env.NEXT_PUBLIC_RP_NAME || !process.env.NEXT_PUBLIC_RP_ID) {
+    throw new Error("Internal Server Error");
+  }
   // Human-readable title for your website
-  const rpName = "WorkspaceVault";
+  const rpName = process.env.NEXT_PUBLIC_RP_NAME;
   // A unique identifier for your website
-  const rpID = "localhost";
+  const rpID = process.env.NEXT_PUBLIC_RP_ID;
   // The URL at which registrations and authentications should occur
 
   // get user
@@ -82,6 +85,8 @@ export const GET = async (request: NextApiRequest) => {
     };
 
     console.log("response being sent over client..");
+
+    prismaClient.$disconnect();
 
     return new NextResponse(
       JSON.stringify({

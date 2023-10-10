@@ -80,7 +80,13 @@ const Details = ({
         throw new Error(responseJson.error);
       }
 
-      const masterkey = await generateMasterKey(decryptedSecret, getSalt());
+      if (!process.env.NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY) {
+        throw new Error("Error ocurred while generating the master key.");
+      }
+      const masterkey = await generateMasterKey(
+        decryptedSecret,
+        getSalt(process.env.NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY)
+      );
       const decryptedText = await decryptTextWithAESGCM(variable, masterkey);
 
       setIsEncrypted(true);

@@ -18,6 +18,8 @@ const onlyMembersAllowed = async (workspaceId: string) => {
       },
     });
 
+    prisma.$disconnect();
+
     return true;
   } catch (error) {
     return false;

@@ -32,6 +32,8 @@ export const getEnvDataFromServer = async (env: number) => {
       },
     });
 
+    prisma.$disconnect();
+
     return { status: "success", result: file } as WorkspaceSuccess<typeof file>;
   } catch (error) {
     return (

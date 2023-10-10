@@ -9,12 +9,7 @@ import {
   EyeNoneIcon,
   ReloadIcon,
 } from "@radix-ui/react-icons";
-import {
-  encryptTextWithAESGCM,
-  generateMasterKey,
-  generatePassword,
-  getSalt,
-} from "cryptography";
+import { encryptTextWithAESGCM } from "cryptography";
 
 import * as React from "react";
 import copy from "copy-to-clipboard";

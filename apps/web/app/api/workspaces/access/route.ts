@@ -59,6 +59,8 @@ export const POST = async (request: Request) => {
       member: JSON.stringify(dataToStore),
     });
 
+    prismaClient.$disconnect();
+
     return Response.json(
       {
         status: "success",

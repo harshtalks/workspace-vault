@@ -25,5 +25,7 @@ export const GET = async () => {
     data: USERS,
   });
 
+  prisma.$disconnect();
+
   return Response.json({}, { status: 201 });
 };

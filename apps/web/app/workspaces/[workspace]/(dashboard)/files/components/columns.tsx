@@ -82,11 +82,11 @@ export const columns: ColumnDef<SecretFiles>[] = [
             <DropdownMenuItem
               onClick={() => navigator.clipboard.writeText(payment.name)}
             >
-              Copy payment ID
+              Copy Variables
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem>Erase Variables</DropdownMenuItem>
+            <DropdownMenuItem color="#f0f0f0">Delete File</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

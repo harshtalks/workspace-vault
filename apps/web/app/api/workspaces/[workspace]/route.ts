@@ -42,6 +42,8 @@ export const GET = async (
 
     const transaction = await prismaClient.$transaction([newOrg, member]);
 
+    prismaClient.$disconnect();
+
     return Response.json(
       {
         status: "success",

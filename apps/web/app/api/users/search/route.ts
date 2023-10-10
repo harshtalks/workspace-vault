@@ -24,6 +24,8 @@ export const GET = async (request: NextRequest) => {
       },
     });
 
+    prisma.$disconnect();
+
     return Response.json(
       {
         status: "success",

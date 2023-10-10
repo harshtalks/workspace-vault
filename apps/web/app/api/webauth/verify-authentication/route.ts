@@ -10,12 +10,19 @@ import { PrismaClient } from "database";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (request: NextRequest) => {
+  if (
+    !process.env.NEXT_PUBLIC_RP_NAME ||
+    !process.env.NEXT_PUBLIC_RP_ID ||
+    !process.env.NEXT_PUBLIC_RP_ORIGIN
+  ) {
+    throw new Error("Internal Server Error");
+  }
   // Human-readable title for your website
-  const rpName = "WorkspaceVault";
+  const rpName = process.env.NEXT_PUBLIC_RP_NAME;
   // A unique identifier for your website
-  const rpID = "localhost";
+  const rpID = process.env.NEXT_PUBLIC_RP_ID;
   // The URL at which registrations and authentications should occur
-  const origin = `http://${rpID}:3000`;
+  const origin = process.env.NEXT_PUBLIC_RP_ORIGIN;
 
   try {
     const user = getAuth(request);
@@ -44,6 +51,8 @@ export const POST = async (request: NextRequest) => {
 
     console.log("verification started...");
 
+    prismaClient.$disconnect();
+
     // verification
     const verification = await verifyAuthenticationResponse({
       response: body.response,
@@ -65,7 +74,7 @@ export const POST = async (request: NextRequest) => {
 
     // updating the count of the authenticator
 
-    const updatedAuthenticator = await prismaClient.authenticators.update({
+    const _ = await prismaClient.authenticators.update({
       where: {
         id: authenticator.id,
       },

@@ -14,6 +14,7 @@ import { ReloadIcon } from "@radix-ui/react-icons";
 import { OrgMember, Organization } from "database";
 import { WorkspaceResponse } from "@/middlewares/type";
 import { toast } from "sonner";
+import { getName } from "@/utils/random-name-generator";
 
 const AddWorkspace = () => {
   const [name, setName] = useState("");
@@ -63,16 +64,27 @@ const AddWorkspace = () => {
         </div>
       </CardContent>
       <CardFooter>
-        <Button
-          onClick={handler}
-          disabled={isLoading || !name}
-          className="w-full"
-        >
-          <>
-            {isLoading && <ReloadIcon className="animate-spin w-4 h-4 mr-2" />}
-            Create Workspace
-          </>
-        </Button>
+        <div className="flex flex-col w-full">
+          <Button
+            onClick={handler}
+            disabled={isLoading || !name}
+            className="w-full"
+          >
+            <>
+              {isLoading && (
+                <ReloadIcon className="animate-spin w-4 h-4 mr-2" />
+              )}
+              Create Workspace
+            </>
+          </Button>
+          <Button
+            onClick={() => setName(getName())}
+            variant="secondary"
+            className="w-fit mt-2 text-xs"
+          >
+            Generate Random Name
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );

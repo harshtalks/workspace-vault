@@ -24,6 +24,8 @@ async function getData(workspace: string) {
       },
     });
 
+    prisma.$disconnect();
+
     return {
       status: "success",
       result: envs,

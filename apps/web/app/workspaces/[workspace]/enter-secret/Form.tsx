@@ -12,11 +12,7 @@ import {
 import { Button } from "@ui/components/ui/button";
 import { Input } from "@ui/components/ui/input";
 import { Skeleton } from "@ui/components/ui/skeleton";
-import {
-  encryptTextWithAESGCM,
-  generateMasterKey,
-  getSalt,
-} from "cryptography";
+import { encryptTextWithAESGCM } from "cryptography";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "sonner";

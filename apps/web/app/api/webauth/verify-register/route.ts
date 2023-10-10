@@ -9,14 +9,19 @@ import { verifyRegistrationResponse } from "@simplewebauthn/server";
 import { RegistrationResponseJSON } from "@simplewebauthn/server/script/deps";
 
 export const POST = async (request: NextRequest) => {
+  if (
+    !process.env.NEXT_PUBLIC_RP_NAME ||
+    !process.env.NEXT_PUBLIC_RP_ID ||
+    !process.env.NEXT_PUBLIC_RP_ORIGIN
+  ) {
+    throw new Error("Internal Server Error");
+  }
   // Human-readable title for your website
-  const rpName = "WorkspaceVault";
+  const rpName = process.env.NEXT_PUBLIC_RP_NAME;
   // A unique identifier for your website
-  const rpID = "localhost";
+  const rpID = process.env.NEXT_PUBLIC_RP_ID;
   // The URL at which registrations and authentications should occur
-  const origin = `http://${rpID}:3000`;
-
-  // get user
+  const origin = process.env.NEXT_PUBLIC_RP_ORIGIN;
 
   const user = getAuth(request);
 
@@ -66,6 +71,8 @@ export const POST = async (request: NextRequest) => {
     });
 
     console.log("saved in the database: ", savingNewAuth.id);
+
+    prismaClient.$disconnect();
 
     return new NextResponse(
       JSON.stringify({
