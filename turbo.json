@@ -4,7 +4,7 @@
   "globalDotEnv": [".env"],
   "pipeline": {
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^db:generate", "^build"],
       "outputs": [".next/**", "!.next/cache/**"],
       "dotEnv": [
         ".env.production.local",
@@ -32,6 +32,7 @@
     },
     "lint": {},
     "dev": {
+      "dependsOn": ["^db:generate"],
       "cache": false,
       "persistent": true,
       "dotEnv": [
