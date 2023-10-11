@@ -27,5 +27,5 @@ export const GET = async () => {
 
   prisma.$disconnect();
 
-  return NextResponse.json({}, { status: 201 });
+  return NextResponse.json({ users }, { status: 201 });
 };

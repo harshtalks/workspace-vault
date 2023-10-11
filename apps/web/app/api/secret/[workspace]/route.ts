@@ -9,8 +9,6 @@ export const GET = async (
   try {
     const prisma = new PrismaClient();
 
-    console.log("hit", params.workspace);
-
     const existingSecret = await prisma.secret.findFirst({
       where: {
         orgId: params.workspace,
