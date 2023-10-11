@@ -18,7 +18,7 @@ export const GET = async (request: NextRequest) => {
     // get user from the clerk
     const user = getAuth(request);
 
-    if (user.userId) {
+    if (!user.userId) {
       throw new Error("You are not authorized.");
     }
 
