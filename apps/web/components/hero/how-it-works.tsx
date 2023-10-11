@@ -3,7 +3,7 @@ import React from "react";
 const HowItWorks = () => {
   return (
     <section className="block">
-      <div className="px-5 md:px-10">
+      {/* <div className="px-5 md:px-10">
         <div className="mx-auto w-full max-w-3xl">
           <div className="py-12 md:py-16 lg:py-20">
             <div className="mx-auto flex-col flex max-w-3xl items-center text-center">
@@ -66,7 +66,7 @@ const HowItWorks = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </section>
   );
 };
