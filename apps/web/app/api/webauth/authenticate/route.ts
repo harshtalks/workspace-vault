@@ -22,7 +22,7 @@ export const GET = async (request: NextRequest) => {
     }
 
     // // database config
-    const prismaClient = new PrismaClient();
+    // const prismaClient = new PrismaClient();
 
     // // get all the authenticators instances
     // const authResults = await prismaClient.authenticators.findMany({
