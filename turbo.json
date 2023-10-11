@@ -11,6 +11,15 @@
         ".env.local",
         ".env.production",
         ".env"
+      ],
+      "env": [
+        "NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY",
+        "NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY",
+        "NEXT_PUBLIC_RP_ORIGIN",
+        "NEXT_PUBLIC_RP_ID",
+        "NEXT_PUBLIC_RP_NAME",
+        "NEXT_PUBLIC_CLERK_WEBHOOK",
+        "NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY_WEB"
       ]
     },
     "lint": {},
