@@ -21,7 +21,7 @@ export const GET = async (request: NextRequest) => {
       throw new Error("You are not authorized.");
     }
 
-    // // database config
+    // database config
     // const prismaClient = new PrismaClient();
 
     // // get all the authenticators instances
