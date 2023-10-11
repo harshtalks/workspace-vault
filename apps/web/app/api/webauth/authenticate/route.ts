@@ -46,15 +46,15 @@ export const GET = async (request: NextRequest) => {
         } as Authenticator)
     );
 
-    // const options = await generateAuthenticationOptions({
-    //   allowCredentials: userAuthenticators.map((authenticator) => ({
-    //     id: authenticator.credentialID,
-    //     type: "public-key",
-    //     // Optional
-    //     transports: authenticator.transports,
-    //     userVerification: "preferred",
-    //   })),
-    // });
+    const options = await generateAuthenticationOptions({
+      allowCredentials: userAuthenticators.map((authenticator) => ({
+        id: authenticator.credentialID,
+        type: "public-key",
+        // Optional
+        transports: authenticator.transports,
+        userVerification: "preferred",
+      })),
+    });
 
     // console.log("options generated...");
 
