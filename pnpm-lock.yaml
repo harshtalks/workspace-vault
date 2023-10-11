@@ -121,6 +121,9 @@ importers:
       '@faker-js/faker':
         specifier: ^8.1.0
         version: 8.1.0
+      '@prisma/nextjs-monorepo-workaround-plugin':
+        specifier: ^5.4.2
+        version: 5.4.2
       '@types/node':
         specifier: ^17.0.12
         version: 17.0.45
@@ -754,6 +757,10 @@ packages:
   /@prisma/engines@5.3.1:
     resolution: {integrity: sha512-6QkILNyfeeN67BNEPEtkgh3Xo2tm6D7V+UhrkBbRHqKw9CTaz/vvTP/ROwYSP/3JT2MtIutZm/EnhxUiuOPVDA==}
     requiresBuild: true
+
+  /@prisma/nextjs-monorepo-workaround-plugin@5.4.2:
+    resolution: {integrity: sha512-fs4g2hys6TUG49pr6TRRT9wNHaCf4fqr8kben3QOCa8GBBHmX+N/hGVpjYCi1wOeVLVeFJIUYR61CWWudJymtQ==}
+    dev: true
 
   /@radix-ui/number@1.0.1:
     resolution: {integrity: sha512-T5gIdVO2mmPW3NNhjNgEP3cqMXjXL9UbO0BzWcXfvdBs+BohbQxvd/K5hSVKmn9/lbTdsQVKbUcP5WLCwvUbBg==}
