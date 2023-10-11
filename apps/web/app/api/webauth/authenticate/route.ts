@@ -75,3 +75,5 @@ export const GET = async (request: NextRequest) => {
     );
   }
 };
+
+export const revalidate = 0;
