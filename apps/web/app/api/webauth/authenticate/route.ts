@@ -3,7 +3,7 @@ import {
   verifyAuthenticationResponse,
 } from "@simplewebauthn/server";
 import { getAuth } from "@clerk/nextjs/server";
-import { PrismaClient } from "database";
+import { prismaClient } from "database";
 import {
   CredentialDeviceType,
   PublicKeyCredentialRequestOptionsJSON,
@@ -22,14 +22,13 @@ export const GET = async (request: NextRequest) => {
     }
 
     // database config
-    // const prismaClient = new PrismaClient();
 
-    // // get all the authenticators instances
-    // const authResults = await prismaClient.authenticators.findMany({
-    //   where: {
-    //     userId: user.userId,
-    //   },
-    // });
+    // get all the authenticators instances
+    const authResults = await prismaClient.authenticators.findMany({
+      where: {
+        userId: user.userId,
+      },
+    });
 
     // console.log("Auth results found..");
 
@@ -62,8 +61,6 @@ export const GET = async (request: NextRequest) => {
     //   challenge: options.challenge,
     //   userId: user.userId,
     // };
-
-    // prismaClient.$disconnect();
 
     return new NextResponse(
       JSON.stringify({
