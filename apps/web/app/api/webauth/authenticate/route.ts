@@ -17,6 +17,8 @@ export const GET = async (request: NextRequest) => {
   try {
     const user = getAuth(request);
 
+    throw new Error(user.userId);
+
     if (!user.userId) {
       throw new Error("You are not authorized.");
     }
