@@ -29,7 +29,7 @@ export const webAuthnHandler = async (
   try {
     setIsSigned("isPending");
     // getting the registration options
-    const responseFromTheServer = await fetch("/api/webauth/register", {});
+    const responseFromTheServer = await fetch("/api/webauth/register");
 
     const unmarshallResponseFromTheServer =
       (await responseFromTheServer.json()) as GenerateOptions<PublicKeyCredentialCreationOptionsJSON>;

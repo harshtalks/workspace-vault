@@ -4,10 +4,7 @@ import type {
   GenerateOptions,
   CredentialDeviceType,
 } from "../../../../utils/types";
-import {
-  generateRegistrationOptions,
-  verifyRegistrationResponse,
-} from "@simplewebauthn/server";
+import { generateRegistrationOptions } from "@simplewebauthn/server";
 import { getAuth } from "@clerk/nextjs/server";
 import { PrismaClient } from "database";
 import { PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/server/script/deps";
