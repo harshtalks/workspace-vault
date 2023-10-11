@@ -31,21 +31,6 @@ export const GET = async (request: NextRequest) => {
       },
     });
 
-    console.log("Auth results found..");
-
-    const userAuthenticators = authResults.map(
-      (auth) =>
-        ({
-          counter: auth.counter,
-          credentialBackedUp: auth.credentialBackedUp,
-          credentialDeviceType:
-            auth.credentialDeviceType as CredentialDeviceType,
-          credentialID: auth.credentialID,
-          credentialPublicKey: auth.credentialPublicKey,
-          transports: auth.transports as unknown as AuthenticatorTransport[],
-        } as Authenticator)
-    );
-
     // console.log("options generated...");
 
     // const userCurrentChallenge = {
