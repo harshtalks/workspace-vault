@@ -66,7 +66,7 @@ export type MembersToAdd = {
   role: Role;
 };
 
-const fetcher: Fetcher<WorkspaceResponse<User[]>> = (key: string) =>
+const fetcher: Fetcher<WorkspaceResponse<User[]>, string> = (key) =>
   fetch(key).then((res) => res.json());
 
 export default function AddMembers({ workspace }: { workspace: string }) {

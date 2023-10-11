@@ -1,4 +1,5 @@
 import { prismaClient } from "database";
+import { NextResponse } from "next/server";
 
 export const POST = async (request: Request) => {
   const prisma = prismaClient;
@@ -24,10 +25,11 @@ export const POST = async (request: Request) => {
     });
 
     const transaction = await prisma.$transaction([deletedEnvs, secretDeleted]);
-    return Response.json(secret, { status: 200 });
+
+    return NextResponse.json(secret, { status: 200 });
   } catch (error) {
     console.error("Error fetching posts:", error);
-    return Response.json(error, {
+    return NextResponse.json(error, {
       status: 400,
       statusText: (error as Error).message,
     });

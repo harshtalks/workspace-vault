@@ -1,6 +1,7 @@
 import { WorkspaceError, WorkspaceSuccess } from "@/middlewares/type";
 import { redisClient } from "@/store/redis";
 import { PrismaClient, Role, User } from "database";
+import { NextResponse } from "next/server";
 
 export type AccessType = "read" | "write";
 export type AccessProps = {
@@ -61,7 +62,7 @@ export const POST = async (request: Request) => {
 
     prismaClient.$disconnect();
 
-    return Response.json(
+    return NextResponse.json(
       {
         status: "success",
         result: true,
@@ -69,7 +70,7 @@ export const POST = async (request: Request) => {
       { status: 201 }
     );
   } catch (error) {
-    return Response.json(
+    return NextResponse.json(
       { error: (error as Error).message, status: "error" } as WorkspaceError,
       {
         status: 400,

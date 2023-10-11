@@ -1,5 +1,5 @@
 import { PrismaClient, User } from "database";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { faker } from "@faker-js/faker";
 
 export const GET = async () => {
@@ -27,5 +27,5 @@ export const GET = async () => {
 
   prisma.$disconnect();
 
-  return Response.json({}, { status: 201 });
+  return NextResponse.json({}, { status: 201 });
 };

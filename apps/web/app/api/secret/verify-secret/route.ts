@@ -1,7 +1,7 @@
 import { WorkspaceError, WorkspaceSuccess } from "@/middlewares/type";
 import { compare } from "bcryptjs";
 import { PrismaClient } from "database";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (request: NextRequest) => {
   try {
@@ -25,7 +25,7 @@ export const POST = async (request: NextRequest) => {
 
     prisma.$disconnect();
 
-    return Response.json(
+    return NextResponse.json(
       {
         status: "success",
         result: true,
@@ -33,7 +33,7 @@ export const POST = async (request: NextRequest) => {
       { status: 200 }
     );
   } catch (error) {
-    return Response.json(
+    return NextResponse.json(
       { error: (error as Error).message, status: "error" } as WorkspaceError,
       {
         status: 400,

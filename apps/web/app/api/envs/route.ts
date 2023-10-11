@@ -5,7 +5,7 @@ import {
   WorkspaceSuccess,
 } from "@/middlewares/type";
 import { EnvironmentVariables, prismaClient } from "database";
-import { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 export type EnvAPIRequestBody = {
   envs: AddNewEnvProps;
@@ -13,7 +13,7 @@ export type EnvAPIRequestBody = {
   envId?: number;
 };
 
-export const POST = async (request: NextRequest) => {
+export const POST = async (request: Request) => {
   try {
     const prisma = prismaClient;
 
@@ -49,7 +49,7 @@ export const POST = async (request: NextRequest) => {
       });
     }
 
-    return Response.json(
+    return NextResponse.json(
       {
         result: envVault,
         status: "success",
@@ -59,7 +59,7 @@ export const POST = async (request: NextRequest) => {
       }
     );
   } catch (error) {
-    return Response.json(
+    return NextResponse.json(
       { error: (error as Error).message, status: "error" } as WorkspaceError,
       {
         status: 400,

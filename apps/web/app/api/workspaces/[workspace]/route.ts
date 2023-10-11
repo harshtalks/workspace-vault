@@ -2,7 +2,7 @@ import { WorkspaceError, WorkspaceSuccess } from "@/middlewares/type";
 import { getAuth } from "@clerk/nextjs/server";
 import { Organization, Prisma, PrismaClient } from "database";
 import { nanoid } from "nanoid";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (
   request: NextRequest,
@@ -44,7 +44,7 @@ export const GET = async (
 
     prismaClient.$disconnect();
 
-    return Response.json(
+    return NextResponse.json(
       {
         status: "success",
         result: transaction[0],
@@ -52,7 +52,7 @@ export const GET = async (
       { status: 201 }
     );
   } catch (error) {
-    return Response.json(
+    return NextResponse.json(
       { error: (error as Error).message, status: "error" } as WorkspaceError,
       {
         status: 400,

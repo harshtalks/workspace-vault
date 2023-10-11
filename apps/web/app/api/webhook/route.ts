@@ -2,7 +2,7 @@ import { cookies, headers } from "next/headers";
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { Webhook } from "svix";
 import { PrismaClient } from "database";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { redirect } from "next/dist/server/api-utils";
 
 export const POST = async (request: NextRequest) => {
@@ -83,16 +83,14 @@ export const POST = async (request: NextRequest) => {
           id: event.data.id,
         },
       });
-      console.log(`user with and ID of ${id} is deleted from the database.`);
     } catch (error) {
       error instanceof Error && console.error(error.message);
     }
   } else if (eventType === "session.ended") {
-    console.log("cookie is deleted:", request.cookies.get("webAuthn"));
     request.cookies.delete("webAuthn");
   }
 
   prisma.$disconnect();
 
-  return new Response(JSON.stringify({ id: id }), { status: 201 });
+  return new NextResponse(JSON.stringify({ id: id }), { status: 201 });
 };

@@ -1,6 +1,6 @@
 import { hash } from "bcryptjs";
 import { PrismaClient } from "database"; // Import PrismaClient from the correct package
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (request: NextRequest) => {
   try {
@@ -36,12 +36,12 @@ export const POST = async (request: NextRequest) => {
 
     prismaClient.$disconnect(); // Disconnect the Prisma client
 
-    return Response.json(
+    return NextResponse.json(
       { isSavedHash: true },
       { status: 200, statusText: "ok" }
     );
   } catch (e) {
-    return Response.json(
+    return NextResponse.json(
       { error: e.message }, // Return the error message
       { status: 400, statusText: e.message }
     );

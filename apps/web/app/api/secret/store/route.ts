@@ -1,7 +1,7 @@
 import { WorkspaceError, WorkspaceSuccess } from "@/middlewares/type";
 import { hash } from "bcryptjs";
 import { PrismaClient, Secret } from "database";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (request: NextRequest) => {
   try {
@@ -24,7 +24,7 @@ export const POST = async (request: NextRequest) => {
 
     prisma.$disconnect();
 
-    return Response.json(
+    return NextResponse.json(
       {
         status: "success",
         result: existingSecret,
@@ -32,7 +32,7 @@ export const POST = async (request: NextRequest) => {
       { status: 201 }
     );
   } catch (error) {
-    return Response.json(
+    return NextResponse.json(
       { error: (error as Error).message, status: "error" } as WorkspaceError,
       {
         status: 400,

@@ -11,6 +11,7 @@ import {
   User,
 } from "database";
 import { nanoid } from "nanoid";
+import { NextResponse } from "next/server";
 
 const permissionMapper = (role: Role): Permission[] => {
   if (role === "admin") {
@@ -111,7 +112,7 @@ export const POST = async (request: Request) => {
 
     // console.log("result", resultFinal);
 
-    return Response.json(
+    return NextResponse.json(
       {
         status: "success",
         result: transaction,
@@ -119,7 +120,7 @@ export const POST = async (request: Request) => {
       { status: 201 }
     );
   } catch (error) {
-    return Response.json(
+    return NextResponse.json(
       { error: (error as Error).message, status: "error" } as WorkspaceError,
       {
         status: 400,
