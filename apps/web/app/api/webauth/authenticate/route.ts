@@ -1,4 +1,3 @@
-import { NextApiRequest } from "next";
 import {
   generateAuthenticationOptions,
   verifyAuthenticationResponse,
@@ -10,9 +9,9 @@ import {
   PublicKeyCredentialRequestOptionsJSON,
 } from "@simplewebauthn/server/script/deps";
 import { Authenticator, GenerateOptions } from "@/utils/types";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export const GET = async (request: NextApiRequest) => {
+export const GET = async (request: NextRequest) => {
   // get user from the clerk
 
   try {

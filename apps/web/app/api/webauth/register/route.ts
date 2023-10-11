@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import type {
   Authenticator,
   GenerateOptions,
@@ -10,10 +10,9 @@ import {
 } from "@simplewebauthn/server";
 import { getAuth } from "@clerk/nextjs/server";
 import { PrismaClient } from "database";
-import { NextApiRequest } from "next";
 import { PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/server/script/deps";
 
-export const GET = async (request: NextApiRequest) => {
+export const GET = async (request: NextRequest) => {
   if (!process.env.NEXT_PUBLIC_RP_NAME || !process.env.NEXT_PUBLIC_RP_ID) {
     throw new Error("Internal Server Error");
   }
