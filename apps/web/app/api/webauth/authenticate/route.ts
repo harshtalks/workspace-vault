@@ -22,7 +22,7 @@ export const GET = async (request: NextRequest) => {
     }
 
     // database config
-    const prismaClient = new PrismaClient();
+    // const prismaClient = new PrismaClient();
 
     // // get all the authenticators instances
     // const authResults = await prismaClient.authenticators.findMany({
@@ -67,11 +67,8 @@ export const GET = async (request: NextRequest) => {
 
     return new NextResponse(
       JSON.stringify({
-        error: "error",
-      } as GenerateOptions<PublicKeyCredentialRequestOptionsJSON>),
-      {
-        status: 200,
-      }
+        error: user,
+      })
     );
   } catch (error) {
     return new NextResponse(
