@@ -13,7 +13,7 @@ const HeroContainer = () => {
             We prioritize the security of your shared environment variables.
             Your data is encrypted from the moment you enter it, and we store it
             temporarily in a secure Redis store with limited access and
-            expiration controls. We're committed to safeguarding your
+            expiration controls. We&#39;re committed to safeguarding your
             information and maintaining the highest standards of data
             protection.
           </p>

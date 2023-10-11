@@ -218,8 +218,9 @@ export default function AddMembers({ workspace }: { workspace: string }) {
                                         No roles found.
                                       </CommandEmpty>
                                       <CommandGroup>
-                                        {commandItems.map((command) => (
+                                        {commandItems.map((command, index) => (
                                           <CommandItem
+                                            key={index}
                                             onSelect={(value) => {
                                               setMembersToAdd(
                                                 (prevMembersToAdd) => {

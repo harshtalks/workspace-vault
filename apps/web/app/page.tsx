@@ -6,7 +6,7 @@ export default function Page() {
   return (
     <>
       <HeroContainer />
-      <Features />
+      {/* <Features /> */}
       <CTA />
     </>
   );

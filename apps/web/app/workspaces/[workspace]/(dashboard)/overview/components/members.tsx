@@ -42,7 +42,7 @@ const Members = async ({ workspace }: { workspace: string }) => {
     >
       <div className="space-y-8 pr-2.5">
         {members.result.map((member) => (
-          <div className="flex items-center">
+          <div key={member.id} className="flex items-center">
             <Avatar className="h-9 w-9">
               <AvatarImage src={member.user.avatar} alt="Avatar" />
               <AvatarFallback>

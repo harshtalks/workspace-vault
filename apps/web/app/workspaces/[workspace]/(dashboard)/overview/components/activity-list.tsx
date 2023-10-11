@@ -74,7 +74,10 @@ const CollapsibleComponent = ({
       </div>
       <CollapsibleContent className="space-y-2">
         {activity.members.slice(1).map((member) => (
-          <div className="flex items-center space-x-4 rounded-md border px-4 py-2 font-mono text-sm shadow-sm overflow-hidden">
+          <div
+            key={member.id}
+            className="flex items-center space-x-4 rounded-md border px-4 py-2 font-mono text-sm shadow-sm overflow-hidden"
+          >
             <Avatar>
               <AvatarImage src={member.avatar} />
               <AvatarFallback>

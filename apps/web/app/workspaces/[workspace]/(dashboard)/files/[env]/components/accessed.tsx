@@ -60,7 +60,10 @@ export async function Accessed({ envId }: { envId: string }) {
         >
           <div className="grid gap-6">
             {response.result.map((access) => (
-              <div className="flex items-center justify-between space-x-4">
+              <div
+                key={access.timestamp}
+                className="flex items-center justify-between space-x-4"
+              >
                 <div className="flex items-center space-x-4">
                   <Avatar>
                     <AvatarImage src={access.user.avatar} />
