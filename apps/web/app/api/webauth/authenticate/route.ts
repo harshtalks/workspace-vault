@@ -15,6 +15,7 @@ export const GET = async (request: NextRequest) => {
   // get user from the clerk
 
   try {
+    throw new Error("hi api called...");
     const user = getAuth(request);
 
     throw new Error(user.userId);
