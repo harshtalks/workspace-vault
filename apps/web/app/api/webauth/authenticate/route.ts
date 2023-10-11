@@ -24,7 +24,7 @@ export const GET = async (request: NextRequest) => {
     // database config
 
     // get all the authenticators instances
-    const authResults = await prismaClient.authenticators.findMany({
+    const authResults = await prismaClient.authenticators.findFirstOrThrow({
       where: {
         userId: user.userId,
       },
@@ -64,7 +64,7 @@ export const GET = async (request: NextRequest) => {
 
     return new NextResponse(
       JSON.stringify({
-        error: user,
+        error: authResults,
       })
     );
   } catch (error) {
