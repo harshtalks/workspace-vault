@@ -3,7 +3,7 @@ import {
   verifyAuthenticationResponse,
 } from "@simplewebauthn/server";
 import { getAuth } from "@clerk/nextjs/server";
-import { Prisma, PrismaClient, prismaClient } from "database";
+import { Prisma, PrismaClient } from "database";
 import {
   CredentialDeviceType,
   PublicKeyCredentialRequestOptionsJSON,
@@ -22,7 +22,7 @@ export const GET = async (request: NextRequest) => {
     }
 
     // // database config
-    // const prismaClient = new PrismaClient();
+    const prismaClient = new PrismaClient();
 
     // // get all the authenticators instances
     // const authResults = await prismaClient.authenticators.findMany({
@@ -63,7 +63,7 @@ export const GET = async (request: NextRequest) => {
     //   userId: user.userId,
     // };
 
-    prismaClient.$disconnect();
+    // prismaClient.$disconnect();
 
     return new NextResponse(
       JSON.stringify({
