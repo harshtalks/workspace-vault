@@ -81,7 +81,7 @@ export default function AddMembers({ workspace }: { workspace: string }) {
     error,
   } = useSWRImmutable(
     memberEmail !== ""
-      ? `http://localhost:3000/api/users/search?email=${memberEmail}&workspace=${workspace}`
+      ? `${window.location.origin}/api/users/search?email=${memberEmail}&workspace=${workspace}`
       : null,
     fetcher
   );

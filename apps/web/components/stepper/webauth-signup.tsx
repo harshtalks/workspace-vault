@@ -92,8 +92,8 @@ export function WebAuthSignup({ className, ...props }: CardProps) {
             your private passkey is used, guaranteeing that your data remains
             confidential and inaccessible to unauthorized parties. This approach
             is designed to maintain the utmost privacy and safeguard your data
-            from any potential breaches. If you'd like to delve deeper into the
-            mechanics of this process, you can find additional information{" "}
+            from any potential breaches. If you&apos;d like to delve deeper into
+            the mechanics of this process, you can find additional information{" "}
             <Link
               className="underline hover:text-zinc-900 hover:dark:text-white"
               href="https://webauthn.guide/"

@@ -15,8 +15,8 @@ import React from "react";
 const ActvitiyList = ({ result }: { result: RedisActivityForWorkspace[] }) => {
   return (
     <div className="flex flex-col gap-y-4">
-      {result.map((activity) => (
-        <CollapsibleComponent activity={activity} />
+      {result.map((activity, index) => (
+        <CollapsibleComponent key={index} activity={activity} />
       ))}
     </div>
   );
