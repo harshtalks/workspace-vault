@@ -15,21 +15,46 @@ export const GET = async (request: NextRequest) => {
   // get user from the clerk
 
   try {
-    const user = getAuth(request);
+    // const user = getAuth(request);
 
-    if (!user.userId) {
-      throw new Error("You are not authorized.");
-    }
+    // if (!user.userId) {
+    //   throw new Error("You are not authorized.");
+    // }
 
-    // database config
-    const prismaClient = new PrismaClient();
+    // // database config
+    // const prismaClient = new PrismaClient();
 
-    // get all the authenticators instances
-    const authResults = await prismaClient.authenticators.findMany({
-      where: {
-        userId: user.userId,
-      },
-    });
+    // // get all the authenticators instances
+    // const authResults = await prismaClient.authenticators.findMany({
+    //   where: {
+    //     userId: user.userId,
+    //   },
+    // });
+
+    // console.log("Auth results found..");
+
+    // const userAuthenticators = authResults.map(
+    //   (auth) =>
+    //     ({
+    //       counter: auth.counter,
+    //       credentialBackedUp: auth.credentialBackedUp,
+    //       credentialDeviceType:
+    //         auth.credentialDeviceType as CredentialDeviceType,
+    //       credentialID: auth.credentialID,
+    //       credentialPublicKey: auth.credentialPublicKey,
+    //       transports: auth.transports as unknown as AuthenticatorTransport[],
+    //     } as Authenticator)
+    // );
+
+    // const options = await generateAuthenticationOptions({
+    //   allowCredentials: userAuthenticators.map((authenticator) => ({
+    //     id: authenticator.credentialID,
+    //     type: "public-key",
+    //     // Optional
+    //     transports: authenticator.transports,
+    //     userVerification: "preferred",
+    //   })),
+    // });
 
     // console.log("options generated...");
 
@@ -41,9 +66,9 @@ export const GET = async (request: NextRequest) => {
     // prismaClient.$disconnect();
 
     return new NextResponse(
-      JSON.stringify(
-        {} as GenerateOptions<PublicKeyCredentialRequestOptionsJSON>
-      ),
+      JSON.stringify({
+        error: "error",
+      } as GenerateOptions<PublicKeyCredentialRequestOptionsJSON>),
       {
         status: 200,
       }
