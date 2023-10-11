@@ -65,17 +65,13 @@ export const GET = async (request: NextRequest) => {
 
     // prismaClient.$disconnect();
 
-    return new NextResponse(
-      JSON.stringify({
-        error: "authResults",
-      })
-    );
+    return NextResponse.json({}, { status: 200 });
   } catch (error) {
-    return new NextResponse(
-      JSON.stringify({
+    return NextResponse.json(
+      {
         status: "error",
         error: error instanceof Error ? error.message : "An error occured",
-      } as GenerateOptions<PublicKeyCredentialRequestOptionsJSON>),
+      } as GenerateOptions<PublicKeyCredentialRequestOptionsJSON>,
       {
         status: 404,
       }
