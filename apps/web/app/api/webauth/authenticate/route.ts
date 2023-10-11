@@ -21,15 +21,15 @@ export const GET = async (request: NextRequest) => {
       throw new Error("You are not authorized.");
     }
 
-    // database config
-    const prismaClient = new PrismaClient();
+    // // database config
+    // const prismaClient = new PrismaClient();
 
-    // get all the authenticators instances
-    const authResults = await prismaClient.authenticators.findMany({
-      where: {
-        userId: user.userId,
-      },
-    });
+    // // get all the authenticators instances
+    // const authResults = await prismaClient.authenticators.findMany({
+    //   where: {
+    //     userId: user.userId,
+    //   },
+    // });
 
     // console.log("Auth results found..");
 
@@ -67,7 +67,7 @@ export const GET = async (request: NextRequest) => {
 
     return new NextResponse(
       JSON.stringify({
-        error: authResults,
+        error: "authResults",
       })
     );
   } catch (error) {
