@@ -15,11 +15,11 @@ export const GET = async (request: NextRequest) => {
   // get user from the clerk
 
   try {
-    // const user = getAuth(request);
+    const user = getAuth(request);
 
-    // if (!user.userId) {
-    //   throw new Error("You are not authorized.");
-    // }
+    if (!user.userId) {
+      throw new Error("You are not authorized.");
+    }
 
     // // database config
     // const prismaClient = new PrismaClient();
