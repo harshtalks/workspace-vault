@@ -3,7 +3,7 @@ import {
   verifyAuthenticationResponse,
 } from "@simplewebauthn/server";
 import { getAuth } from "@clerk/nextjs/server";
-import { prismaClient } from "database";
+import { Prisma, PrismaClient, prismaClient } from "database";
 import {
   CredentialDeviceType,
   PublicKeyCredentialRequestOptionsJSON,
@@ -17,14 +17,15 @@ export const GET = async (request: NextRequest) => {
   try {
     const user = getAuth(request);
 
-    if (!user.userId) {
+    if (user.userId) {
       throw new Error("You are not authorized.");
     }
 
     // database config
+    const prismaClient = new PrismaClient();
 
     // get all the authenticators instances
-    const authResults = await prismaClient.authenticators.findFirstOrThrow({
+    const authResults = await prismaClient.authenticators.findMany({
       where: {
         userId: user.userId,
       },
@@ -61,6 +62,8 @@ export const GET = async (request: NextRequest) => {
     //   challenge: options.challenge,
     //   userId: user.userId,
     // };
+
+    prismaClient.$disconnect();
 
     return new NextResponse(
       JSON.stringify({
