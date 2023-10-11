@@ -3,8 +3,8 @@
   "version": "0.1.1",
   "private": true,
   "scripts": {
-    "build": "turbo run build",
-    "dev": "dotenv -- turbo dev",
+    "build": "dotenv -e .env -- turbo run build",
+    "dev": "dotenv -e .env -- turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "ui:add": "pnpm --filter ui ui:add",
@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@turbo/gen": "^1.9.7",
+    "@types/node": "^20.8.4",
     "eslint": "^7.32.0",
     "eslint-config-custom": "workspace:*",
     "prettier": "^2.5.1",
