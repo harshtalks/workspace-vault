@@ -1,5 +1,4 @@
 import "dotenv/config";
-console.log(process.env);
 
 export const generateMasterKey = async (secret: string, salt: Uint8Array) => {
   // Define the initial key material (e.g., an AES key)
