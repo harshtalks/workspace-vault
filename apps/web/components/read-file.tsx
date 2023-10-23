@@ -18,9 +18,11 @@ import { AddNewEnvProps } from "./Form";
 export function ReadFile({
   setState,
   setHideEnvs,
+  canAddOrEditFile,
 }: {
   setState: SetterOrUpdater<AddNewEnvProps>;
   setHideEnvs: Dispatch<SetStateAction<boolean>>;
+  canAddOrEditFile: boolean;
 }) {
   const [fileText, setFileText] = useState("");
   const [saved, setSaved] = useState(false);
@@ -48,7 +50,9 @@ export function ReadFile({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Upload .env</Button>
+        <Button disabled={!canAddOrEditFile} variant="outline">
+          Upload .env
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

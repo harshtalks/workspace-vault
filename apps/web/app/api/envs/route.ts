@@ -6,6 +6,9 @@ import {
 } from "@/middlewares/type";
 import { EnvironmentVariables, prismaClient } from "database";
 import { NextResponse } from "next/server";
+import { RedisActivityForWorkspace } from "../members/route";
+import { currentUser } from "@clerk/nextjs/server";
+import { redisClient } from "@/store/redis";
 
 export type EnvAPIRequestBody = {
   envs: AddNewEnvProps;
@@ -16,6 +19,8 @@ export type EnvAPIRequestBody = {
 export const POST = async (request: Request) => {
   try {
     const prisma = prismaClient;
+
+    const user = await currentUser();
 
     const body = (await request.json()) as EnvAPIRequestBody;
 
@@ -48,6 +53,21 @@ export const POST = async (request: Request) => {
         },
       });
     }
+
+    const timestamp = Date.now();
+
+    const workspaceActivityData: RedisActivityForWorkspace = {
+      action: "added file",
+      file: envVault,
+      timestamp,
+      username: user.id,
+      email: user.emailAddresses[0].emailAddress,
+    };
+
+    await redisClient.zadd(`recentActivities:${body.workspace}`, {
+      score: timestamp,
+      member: JSON.stringify(workspaceActivityData),
+    });
 
     return NextResponse.json(
       {

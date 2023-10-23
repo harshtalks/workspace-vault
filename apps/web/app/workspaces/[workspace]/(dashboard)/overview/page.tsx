@@ -16,8 +16,56 @@ import { ReloadIcon } from "@radix-ui/react-icons";
 import WorkspaceInfo from "./components/workspace-info";
 import { workerData } from "worker_threads";
 import Link from "next/link";
+import { prismaClient } from "database";
+import { currentUser } from "@clerk/nextjs";
+import { Badge } from "@ui/components/ui/badge";
 
-const page = ({ params }: { params: { workspace: string } }) => {
+export const butBroCanYouDoShitHere = async (workspace: string) => {
+  try {
+    const user = await currentUser();
+
+    const canYouAddMembers = await prismaClient.user.findUniqueOrThrow({
+      where: {
+        id: user.id,
+        AND: {
+          orgMembers: {
+            some: {
+              orgId: workspace,
+              userId: user.id,
+            },
+          },
+        },
+      },
+      include: {
+        orgMembers: {
+          where: {
+            orgId: workspace,
+            userId: user.id,
+          },
+        },
+      },
+    });
+
+    return {
+      addUser: !!canYouAddMembers.orgMembers.find((el) =>
+        el.permission.includes("add_user")
+      ),
+      addOrEditFile: !!canYouAddMembers.orgMembers.find((el) =>
+        el.permission.includes("write")
+      ),
+      status: "success",
+    };
+  } catch (error) {
+    return {
+      addUser: false,
+      addOrEditFile: false,
+      status: "error",
+    };
+  }
+};
+
+const page = async ({ params }: { params: { workspace: string } }) => {
+  const canYouDoAnythingFR = await butBroCanYouDoShitHere(params.workspace);
   return (
     <div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -122,7 +170,24 @@ const page = ({ params }: { params: { workspace: string } }) => {
               <>
                 <p>Members in the workspaces.</p>
                 <div className="py-2">
-                  <AddMembers workspace={params.workspace} />
+                  <Suspense
+                    fallback={
+                      <div>
+                        {<ReloadIcon className="h-4 w-4 mr-2" />}loading...
+                      </div>
+                    }
+                  >
+                    {canYouDoAnythingFR.status === "error" ? (
+                      <div>
+                        <Badge variant="destructive">Error</Badge>
+                      </div>
+                    ) : (
+                      <AddMembers
+                        canAddMember={canYouDoAnythingFR.addUser}
+                        workspace={params.workspace}
+                      />
+                    )}
+                  </Suspense>
                 </div>
                 <Separator />
               </>

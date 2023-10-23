@@ -69,7 +69,13 @@ export type MembersToAdd = {
 const fetcher: Fetcher<WorkspaceResponse<User[]>, string> = (key) =>
   fetch(key).then((res) => res.json());
 
-export default function AddMembers({ workspace }: { workspace: string }) {
+export default function AddMembers({
+  workspace,
+  canAddMember,
+}: {
+  workspace: string;
+  canAddMember: boolean;
+}) {
   // member search
   const [memberEmail, setMemberEmail] = useState("");
   const [membersToAdd, setMembersToAdd] = useState<MembersToAdd[]>([]);
@@ -117,7 +123,7 @@ export default function AddMembers({ workspace }: { workspace: string }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Add Members</Button>
+        <Button disabled={!canAddMember}>Add Members</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[550px] p-0 border-none">
         <Card>

@@ -79,12 +79,15 @@ model Secret {
 }
 
 model EnvironmentVariables {
-  id Int  @id @default(autoincrement())
-  name String @unique
+  id Int @id @default(autoincrement())
+  name String
   created_at DateTime @default(now()) @map("created_at")
   updated_at DateTime @default(now()) @updatedAt @map("updated_at")
   variables String
-  secretId Int 
-  secret   Secret @relation(fields: [secretId], references: [id], onDelete: Cascade)
+  secretId Int
+  secret Secret @relation(fields: [secretId], references: [id], onDelete: Cascade)
+  
+  // Unique constraint on name and secretId
+  @@unique([name, secretId])
 }
 

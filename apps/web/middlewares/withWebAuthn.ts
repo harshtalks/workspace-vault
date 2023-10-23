@@ -7,20 +7,26 @@ import {
 } from "next/server";
 import { MiddlewareFactory } from "./type";
 import { jwtVerify } from "jose";
+import { UNAUTHORIZED } from "http-status";
 export const withWebAuthn: MiddlewareFactory = (next: NextMiddleware) => {
   return async (request: NextRequest, _next: NextFetchEvent) => {
+    const callbackUrl = new URL(request.url);
     const response = await next(request, _next);
     if (response) {
       const cookie = request.cookies.get("webAuthn");
-
-      console.log("cookie:", cookie);
 
       const protectedPaths = [
         /^\/workspaces\/[^/]+\/overview/,
         /^\/workspaces\/[^/]+\/files/,
         /^\/workspaces\/[^/]+\/add-new-file/,
         /^\/workspaces\/[^/]+\/settings/,
-        /^\/api\/dashboard/,
+        /^\/workspaces\/[^/]+\/generate-secret/,
+        /^\/workspaces\/[^/]+\/enter-secret/,
+        /^\/api\/workspaces/,
+        /^\/api\/secret/,
+        /^\/api\/members/,
+        /^\/api\/users/,
+        /^\/api\/envs/,
         /^\/get-started\/workspaces/,
       ];
 
@@ -31,8 +37,22 @@ export const withWebAuthn: MiddlewareFactory = (next: NextMiddleware) => {
         // Check if the user is already on the login page
         if (currentPath !== "/get-started/authenticate") {
           // Redirect the user to the login page
+
+          if (currentPath.includes("api")) {
+            return NextResponse.json(
+              {
+                status: "error",
+                error:
+                  "You are not authorized to access this, you need MFA Authorized with the passkey.",
+              },
+              { status: UNAUTHORIZED }
+            );
+          }
           return NextResponse.redirect(
-            new URL("/get-started/authenticate", request.url)
+            new URL(
+              `/get-started/authenticate?callbackMFA=${callbackUrl.toString()}`,
+              request.url
+            )
           );
         }
       }
@@ -73,7 +93,10 @@ export const withWebAuthn: MiddlewareFactory = (next: NextMiddleware) => {
           if (currentPath !== "/get-started/authenticate") {
             // Redirect the user to the login page after failed verification
             return NextResponse.redirect(
-              new URL("/get-started/authenticate", request.url)
+              new URL(
+                `/get-started/authenticate?callbackMFA=${callbackUrl.toString()}`,
+                request.url
+              )
             );
           }
         }

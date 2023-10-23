@@ -4,11 +4,14 @@ import { Button } from "@ui/components/ui/button";
 import { Separator } from "@ui/components/ui/separator";
 import { Textarea } from "@ui/components/ui/textarea";
 import { useSearchParams } from "next/navigation";
-import React from "react";
+import React, { Suspense } from "react";
 import {
   GetEnvDataFromServer,
   getEnvDataFromServer,
 } from "../files/[env]/page";
+import { butBroCanYouDoShitHere } from "../overview/page";
+import { ReloadIcon } from "@radix-ui/react-icons";
+import { Badge } from "@ui/components/ui/badge";
 
 const page = async ({
   params,
@@ -28,15 +31,30 @@ const page = async ({
     );
   }
 
+  const canDoShit = await butBroCanYouDoShitHere(params.workspace);
+
   return (
     <div className="hidden h-full flex-col md:flex">
       <Separator className="" />
-      <div className="py-4 overflow-hidden ">
-        <Form
-          workspace={params.workspace}
-          resultFromServer={whatServerRespondedMeWithWhenIAskedForEnvData}
-        />
-      </div>
+      <Suspense
+        fallback={
+          <div>{<ReloadIcon className="h-4 w-4 mr-2" />}loading...</div>
+        }
+      >
+        <div className="py-4 overflow-hidden ">
+          {canDoShit.status === "error" ? (
+            <div>
+              <Badge variant="destructive">Error</Badge>
+            </div>
+          ) : (
+            <Form
+              canAddOrEditFile={canDoShit.addOrEditFile}
+              workspace={params.workspace}
+              resultFromServer={whatServerRespondedMeWithWhenIAskedForEnvData}
+            />
+          )}
+        </div>
+      </Suspense>
     </div>
   );
 };

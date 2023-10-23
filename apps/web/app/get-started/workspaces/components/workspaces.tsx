@@ -16,6 +16,7 @@ import useWorkspaces from "@/hooks/use-workspaces";
 import { Skeleton } from "@ui/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Badge } from "@ui/components/ui/badge";
 
 const Workspaces = () => {
   const { data, error, isLoading } = useWorkspaces();
@@ -68,6 +69,10 @@ const Workspaces = () => {
                   <Skeleton className="w-[150px] h-12" />
                 </div>
               ))}
+            </div>
+          ) : error ? (
+            <div className="flex items-center justify-center p-4">
+              <Badge variant="destructive">{error}</Badge>
             </div>
           ) : (
             <div className="grid gap-6">

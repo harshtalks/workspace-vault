@@ -8,15 +8,11 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@ui/components/ui/card";
-import { Separator } from "@ui/components/ui/separator";
-import { Checkbox } from "@ui/components/ui/checkbox";
 
 import Link from "next/link";
-import FormAction from "./form-action";
 import { webAuthnHandler } from "@/async/web-auth";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
@@ -76,7 +72,7 @@ export function WebAuthSignup({ className, ...props }: CardProps) {
   };
 
   return (
-    <Card className={cn("max-w-[550px]", className)} {...props}>
+    <Card className={cn("max-w-[450px] my-8", className)} {...props}>
       <CardHeader>
         <CardTitle>
           <span className="text-4xl font-bold block mb-1">1.</span>
@@ -87,13 +83,14 @@ export function WebAuthSignup({ className, ...props }: CardProps) {
             We utilize WebAuthn to create a set of cryptographic keys: a private
             key (passkey) that remains securely stored on your device and a
             corresponding public key that is retained on our server. This public
-            key is employed to encrypt your files, ensuring their security
-            during transmission and storage. To decrypt these files on your end,
-            your private passkey is used, guaranteeing that your data remains
-            confidential and inaccessible to unauthorized parties. This approach
-            is designed to maintain the utmost privacy and safeguard your data
-            from any potential breaches. If you&apos;d like to delve deeper into
-            the mechanics of this process, you can find additional information{" "}
+            key is employed to register your device to access env files in your
+            account, ensuring their security during transmission and storage. To
+            decrypt these files on your end, your secret key (next step) is
+            used, guaranteeing that your data remains confidential and
+            inaccessible to unauthorized parties. This approach is designed to
+            maintain the utmost privacy and safeguard your data from any
+            potential breaches. If you&apos;d like to delve deeper into the
+            mechanics of this process, you can find additional information{" "}
             <Link
               className="underline hover:text-zinc-900 hover:dark:text-white"
               href="https://webauthn.guide/"
@@ -125,30 +122,7 @@ export function WebAuthSignup({ className, ...props }: CardProps) {
         >
           Already Authenticated before?
         </Button>
-        <Separator />
-        <div>
-          <div className="mb-4 grid grid-cols-[25px_1fr] items-start pb-4 last:mb-0 last:pb-0">
-            <Checkbox
-              checked={isChecked}
-              onCheckedChange={() => setIsChecked((ch) => !ch)}
-            />
-            <div className="space-y-1">
-              <p className="text-sm font-medium leading-none">
-                I understand, passkey is the only way to verify myself
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Once lost, you will not be able to restore any of your envs
-              </p>
-            </div>
-          </div>
-        </div>
       </CardContent>
-      <CardFooter>
-        <FormAction
-          isDisabled={!(isChecked && isSigned === "success")}
-          link="/get-started/generate-secret"
-        />
-      </CardFooter>
     </Card>
   );
 }

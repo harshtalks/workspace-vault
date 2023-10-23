@@ -34,6 +34,7 @@ import {
 } from "@/app/api/workspaces/access/route";
 import { useAuth } from "@clerk/nextjs";
 import { getName } from "@/utils/random-name-generator";
+import { Badge } from "@ui/components/ui/badge";
 
 export type AddNewEnvProps = {
   envariables: string;
@@ -44,8 +45,10 @@ export type AddNewEnvProps = {
 export function Form({
   workspace,
   resultFromServer,
+  canAddOrEditFile,
 }: {
   workspace: string;
+  canAddOrEditFile: boolean;
   resultFromServer: GetEnvDataFromServer | null;
 }) {
   const [hideEnvs, setHideEnvs] = React.useState(false);
@@ -254,6 +257,11 @@ export function Form({
         <form>
           <div className="grid w-full items-center gap-4">
             <div className="flex flex-col space-y-1.5">
+              {!canAddOrEditFile && (
+                <Badge className="w-fit" variant="destructive">
+                  You do not have write access for this workspace.
+                </Badge>
+              )}
               <Label htmlFor="name">Environment Variables</Label>
               <div className="relative h-[200px] w-full">
                 <div className="flex absolute w-full text-zinc-500 font-mono py-2 space-x-2 border outline-2 focus-visible:ring-2 focus-visible:ring-ring rounded-sm overflow-auto max-h-[200px]">
@@ -285,7 +293,7 @@ export function Form({
                       }));
                     }}
                     placeholder="Enter Input as ENV_KEY=ENV_VALUE"
-                    disabled={hideEnvs}
+                    disabled={!canAddOrEditFile || hideEnvs}
                   />
                 </div>
               </div>
@@ -324,6 +332,8 @@ export function Form({
                         name: e.target.value,
                       }))
                     }
+                    disabled={!canAddOrEditFile}
+                    readOnly={!canAddOrEditFile}
                     className="border-0 focus:ring-0 focus-visible:ring-0 appearance-none"
                     id="name"
                     placeholder="Enter Name"
@@ -384,7 +394,7 @@ export function Form({
                 `Error: ${errorState instanceof Error && errorState.message}`,
             });
           }}
-          disabled={isLoading}
+          disabled={!canAddOrEditFile || isLoading}
         >
           {isLoading ? (
             <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
@@ -393,7 +403,11 @@ export function Form({
           )}
           Save File
         </Button>
-        <ReadFile setHideEnvs={setHideEnvs} setState={setState} />
+        <ReadFile
+          canAddOrEditFile={canAddOrEditFile}
+          setHideEnvs={setHideEnvs}
+          setState={setState}
+        />
       </CardFooter>
     </Card>
   ) : (

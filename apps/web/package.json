@@ -24,6 +24,7 @@
     "cryptography": "workspace:*",
     "database": "workspace:*",
     "dexie": "^3.2.4",
+    "http-status": "^1.7.3",
     "jose": "^4.14.6",
     "nanoid": "^5.0.1",
     "next": "^13.4.1",

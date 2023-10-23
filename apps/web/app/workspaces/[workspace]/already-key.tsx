@@ -2,6 +2,7 @@
 import { secretDB } from "@/utils/local-store";
 import { redirect, useRouter } from "next/navigation";
 import React, { createContext, useEffect } from "react";
+import { toast } from "sonner";
 
 const ContextForTheKeysExistence = createContext({});
 
@@ -18,6 +19,7 @@ const AlreadyKeyIsThere = ({
 }) => {
   const router = useRouter();
   useEffect(() => {
+    const id = toast.loading("async stuff to keep you sync...");
     const checkIfOurIndexDBHasIt = async () => {
       await secretDB.open();
 
@@ -30,7 +32,7 @@ const AlreadyKeyIsThere = ({
       }
     };
 
-    checkIfOurIndexDBHasIt();
+    checkIfOurIndexDBHasIt().then(() => toast.dismiss(id));
   }, []);
   return (
     <ContextForTheKeysExistence.Provider value={{}}>

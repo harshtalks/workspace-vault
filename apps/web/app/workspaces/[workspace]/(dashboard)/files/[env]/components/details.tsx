@@ -37,8 +37,6 @@ const Details = ({
   // fake value
   const length = 15;
 
-  const router = useRouter();
-
   const [isEncrypted, setIsEncrypted] = useState(false);
   const [variable, setVariable] = useState(results.result.variables);
   const [loading, setLoading] = useState(false);

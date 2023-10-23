@@ -15,10 +15,13 @@ import { OrgMember, Organization } from "database";
 import { WorkspaceResponse } from "@/middlewares/type";
 import { toast } from "sonner";
 import { getName } from "@/utils/random-name-generator";
+import { useRouter } from "next/navigation";
 
 const AddWorkspace = () => {
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const router = useRouter();
 
   const handler = async () => {
     setIsLoading(true);
@@ -37,6 +40,8 @@ const AddWorkspace = () => {
       toast.success(
         `New workspace (organization) is created with name "${name}" and id "${responseJson.result.id}"`
       );
+
+      router.push(`/workspaces/${responseJson.result.id}/generate-secret`);
     } catch (error) {
       error instanceof Error
         ? toast.error(`${error.name}: ${error.message}`)

@@ -40,7 +40,7 @@ const Members = async ({ workspace }: { workspace: string }) => {
         members.result.length >= 5 && "overflow-hidden h-[400px]"
       )}
     >
-      <div className="space-y-8 pr-2.5">
+      <div className="space-y-4 pr-2.5">
         {members.result.map((member) => (
           <div key={member.id} className="flex items-center">
             <Avatar className="h-9 w-9">
@@ -50,18 +50,20 @@ const Members = async ({ workspace }: { workspace: string }) => {
                   member.user.lastName[0].toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div className="ml-4 space-y-1">
-              <p className="text-sm font-medium leading-none">
-                {capitalize(member.user.firstName) +
-                  " " +
-                  capitalize(member.user.lastName)}
-              </p>
+            <div className="ml-4 flex flex-col w-full">
+              <div className="flex justify-between items-center w-full">
+                <p className="text-sm font-medium leading-none">
+                  {capitalize(member.user.firstName) +
+                    " " +
+                    capitalize(member.user.lastName)}
+                </p>
+                <div className="ml-auto">
+                  <Badge variant="outline">{capitalize(member.role)}</Badge>
+                </div>
+              </div>
               <p className="text-sm text-muted-foreground">
                 {member.user.email}
               </p>
-            </div>
-            <div className="ml-auto">
-              <Badge variant="outline">{capitalize(member.role)}</Badge>
             </div>
           </div>
         ))}

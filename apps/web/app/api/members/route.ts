@@ -3,6 +3,7 @@ import { WorkspaceError, WorkspaceSuccess } from "@/middlewares/type";
 import { redisClient } from "@/store/redis";
 import { currentUser } from "@clerk/nextjs";
 import {
+  EnvironmentVariables,
   OrgMember,
   Permission,
   Prisma,
@@ -21,20 +22,28 @@ const permissionMapper = (role: Role): Permission[] => {
   } else return ["read"];
 };
 
-export interface RedisActivityForWorkspace {
-  username: string;
-  email: string;
-  action: "added" | "deleted";
-  members: MembersActivityData[];
-  timestamp: number;
-}
+export type RedisActivityForWorkspace =
+  | {
+      username: string;
+      email: string;
+      action: "added" | "deleted";
+      members: MembersActivityData[];
+      timestamp: number;
+    }
+  | {
+      username: string;
+      email: string;
+      action: "added file" | "deleted file";
+      timestamp: number;
+      file: EnvironmentVariables;
+    };
 
-export interface MembersActivityData {
+export type MembersActivityData = {
   id: string;
   fullname: string;
   avatar: string;
   email: string;
-}
+};
 
 export const POST = async (request: Request) => {
   try {

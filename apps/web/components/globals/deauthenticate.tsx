@@ -5,14 +5,21 @@ import React, { useEffect, useState } from "react";
 import { AvatarIcon, ReloadIcon } from "@radix-ui/react-icons";
 import { Button } from "@ui/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 
 const Deauthenticate = () => {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
+  const { isSignedIn } = useAuth();
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    !isSignedIn && deleteCookie("webAuthn");
+    router.refresh();
+  }, [isSignedIn]);
 
   return isClient ? (
     hasCookie("webAuthn") ? (

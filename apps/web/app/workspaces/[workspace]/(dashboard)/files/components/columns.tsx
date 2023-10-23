@@ -68,7 +68,7 @@ export const columns: ColumnDef<SecretFiles>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const payment = row.original;
+      const env = row.original;
 
       return (
         <DropdownMenu>
@@ -80,7 +80,7 @@ export const columns: ColumnDef<SecretFiles>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.name)}
+              onClick={() => navigator.clipboard.writeText(env.name)}
             >
               Copy Variables
             </DropdownMenuItem>

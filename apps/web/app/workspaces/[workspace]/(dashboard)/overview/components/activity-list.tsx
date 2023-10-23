@@ -10,6 +10,8 @@ import {
 } from "@ui/components/collapsible";
 import { Avatar, AvatarFallback, AvatarImage } from "@ui/components/ui/avatar";
 import { Badge } from "@ui/components/ui/badge";
+import { Separator } from "@ui/components/ui/separator";
+import { spawn } from "child_process";
 import React from "react";
 
 const ActvitiyList = ({ result }: { result: RedisActivityForWorkspace[] }) => {
@@ -29,7 +31,7 @@ const CollapsibleComponent = ({
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
-  return (
+  return activity.action === "added" || activity.action === "deleted" ? (
     <Collapsible
       open={isOpen}
       onOpenChange={setIsOpen}
@@ -94,6 +96,22 @@ const CollapsibleComponent = ({
         ))}
       </CollapsibleContent>
     </Collapsible>
+  ) : (
+    <div className="w-full space-y-2">
+      <div className="flex items-center justify-between space-x-4">
+        <div>
+          <h4 className="text-sm font-semibold">{activity.email}</h4>
+          <Badge className="text-xs mt-1 font-regular py-1">
+            {new Date(activity.timestamp).toLocaleString()}
+          </Badge>
+          <p className="text-sm mt-2 font-semibold">
+            {activity.action === "added file" &&
+              `Added new file: ${activity.file.name}`}
+          </p>
+        </div>
+      </div>
+      <Separator />
+    </div>
   );
 };
 
