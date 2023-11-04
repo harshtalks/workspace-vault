@@ -12,9 +12,6 @@
     "crypto:add": "pnpm --filter cryptography crypto:add",
     "db:generate": "pnpm --filter database db:generate"
   },
-  "prisma": {
-    "schema": "packages/database/prisma/schema.prisma"
-  },
   "devDependencies": {
     "@turbo/gen": "^1.9.7",
     "@types/node": "^20.8.4",
