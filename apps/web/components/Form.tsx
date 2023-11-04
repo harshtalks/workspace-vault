@@ -27,7 +27,6 @@ import { EnvAPIRequestBody } from "@/app/api/envs/route";
 import { WorkspaceResponse } from "@/middlewares/type";
 import { EnvironmentVariables } from "database";
 import { toast } from "sonner";
-import { GetEnvDataFromServer } from "@/app/workspaces/[workspace]/(dashboard)/files/[env]/page";
 import {
   AccessProps,
   RedisFileAccess,
@@ -35,6 +34,7 @@ import {
 import { useAuth } from "@clerk/nextjs";
 import { getName } from "@/utils/random-name-generator";
 import { Badge } from "@ui/components/ui/badge";
+import { GetEnvDataFromServer } from "@/services/env";
 
 export type AddNewEnvProps = {
   envariables: string;
