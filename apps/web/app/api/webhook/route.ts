@@ -4,10 +4,14 @@ import { Webhook } from "svix";
 import { PrismaClient } from "database";
 import { NextRequest, NextResponse } from "next/server";
 import { redirect } from "next/dist/server/api-utils";
+import { Resend } from "resend";
+import { NewUserEmailTemplate } from "@/services/email-templates/new-user";
 
 export const POST = async (request: NextRequest) => {
   // Webhook secrets
   const WEBHOOK_SECRET = process.env.NEXT_PUBLIC_CLERK_WEBHOOK;
+
+  const resend = new Resend(process.env.NEXT_PUBLIC_RESEND);
 
   const prisma = new PrismaClient();
 
@@ -78,11 +82,24 @@ export const POST = async (request: NextRequest) => {
     }
   } else if (eventType === "user.deleted") {
     try {
-      const user = await prisma.user.delete({
-        where: {
-          id: event.data.id,
-        },
-      });
+      const user = await prisma.user
+        .delete({
+          where: {
+            id: event.data.id,
+          },
+        })
+        .then(async (user) => {
+          await resend.emails.send({
+            from: "onboarding@resend.dev",
+            to: [user.email],
+            subject: "Welcome To Workspace Vault",
+            react: NewUserEmailTemplate({
+              name: user.firstName,
+              email: user.email,
+              userId: user.id,
+            }),
+          });
+        });
     } catch (error) {
       error instanceof Error && console.error(error.message);
     }
