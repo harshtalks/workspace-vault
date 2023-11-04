@@ -12,7 +12,6 @@
     "db:studio": {
       "cache": false
     },
-
     "lint": {},
     "dev": {
       "dependsOn": ["^db:generate"],
