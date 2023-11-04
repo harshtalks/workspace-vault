@@ -5,13 +5,10 @@ import { Separator } from "@ui/components/ui/separator";
 import { Textarea } from "@ui/components/ui/textarea";
 import { useSearchParams } from "next/navigation";
 import React, { Suspense } from "react";
-import {
-  GetEnvDataFromServer,
-  getEnvDataFromServer,
-} from "../files/[env]/page";
 import { butBroCanYouDoShitHere } from "../overview/page";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { Badge } from "@ui/components/ui/badge";
+import { getEnvDataFromServer, GetEnvDataFromServer } from "@/services/env";
 
 const page = async ({
   params,

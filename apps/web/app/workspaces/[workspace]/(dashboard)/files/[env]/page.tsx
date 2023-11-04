@@ -7,57 +7,7 @@ import { Await } from "./await";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import Details from "./components/details";
 import { Accessed } from "./components/accessed";
-
-export const getEnvDataFromServer = async (env: number) => {
-  const prisma = new PrismaClient();
-  try {
-    const file = await prisma.environmentVariables.findUniqueOrThrow({
-      where: {
-        id: env,
-      },
-      include: {
-        secret: {
-          include: {
-            org: {
-              include: {
-                members: {
-                  where: {
-                    role: "admin",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    prisma.$disconnect();
-
-    return { status: "success", result: file } as WorkspaceSuccess<typeof file>;
-  } catch (error) {
-    return (
-      error instanceof Error &&
-      ({
-        error: error.message,
-        status: "error",
-      } as WorkspaceError)
-    );
-  } finally {
-    prisma.$disconnect();
-  }
-};
-
-export type GetEnvDataFromServer = Awaited<
-  ReturnType<typeof getEnvDataFromServer>
->;
-
-export type ExtractWorkspaceSuccess<T> = T extends { status: "success" }
-  ? T
-  : never;
-
-export type WhatServerPromisedMeUponTheirSuccess =
-  ExtractWorkspaceSuccess<GetEnvDataFromServer>;
+import { getEnvDataFromServer } from "@/services/env";
 
 const Page = async ({
   params,
