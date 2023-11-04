@@ -10,7 +10,6 @@ import {
 } from "@ui/components/ui/card";
 import { Textarea } from "@ui/components/ui/textarea";
 import React, { useState } from "react";
-import { WhatServerPromisedMeUponTheirSuccess } from "../page";
 import { toast } from "sonner";
 import { localKeyForBrowser, secretDB } from "@/utils/local-store";
 import {
@@ -24,6 +23,7 @@ import { WorkspaceResponse } from "@/middlewares/type";
 import { AccessProps } from "@/app/api/workspaces/access/route";
 import { useAuth } from "@clerk/nextjs";
 import copy from "copy-to-clipboard";
+import { WhatServerPromisedMeUponTheirSuccess } from "@/services/env";
 
 const Details = ({
   results,
