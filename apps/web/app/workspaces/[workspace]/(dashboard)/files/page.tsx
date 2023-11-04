@@ -1,8 +1,7 @@
 import Deauthenticate from "@/components/globals/deauthenticate";
 import React from "react";
 import { DataTable } from "./components/data-table";
-import { Payment, columns } from "./components/columns";
-import { SecretFiles, dummyData, payments } from "./components/data";
+import { columns } from "./components/columns";
 import {
   WorkspaceError,
   WorkspaceResponse,
