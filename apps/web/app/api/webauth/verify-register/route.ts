@@ -1,5 +1,4 @@
 import { getAuth } from "@clerk/nextjs/server";
-import { PrismaClient } from "database";
 import { NextRequest, NextResponse } from "next/server";
 import type {
   ClientGenerateOptions,
@@ -7,6 +6,7 @@ import type {
 } from "../../../../utils/types";
 import { verifyRegistrationResponse } from "@simplewebauthn/server";
 import { RegistrationResponseJSON } from "@simplewebauthn/server/script/deps";
+import db, { authenticators } from "database";
 
 export const POST = async (request: NextRequest) => {
   if (
@@ -25,7 +25,6 @@ export const POST = async (request: NextRequest) => {
 
   const user = getAuth(request);
 
-  const prismaClient = new PrismaClient();
   try {
     const body: ClientGenerateOptions<RegistrationResponseJSON> =
       await request.json();
@@ -54,25 +53,22 @@ export const POST = async (request: NextRequest) => {
       credentialDeviceType,
     } = registrationInfo;
 
-    const newAuthenticator = {
-      credentialID: credentialID as Buffer,
-      credentialPublicKey: credentialPublicKey as Buffer,
-      counter: BigInt(counter),
-      credentialBackedUp,
-      credentialDeviceType,
-      transports: body.transports,
-    };
+    console.log("registrationInfo", registrationInfo);
 
-    const savingNewAuth = await prismaClient.authenticators.create({
-      data: {
-        ...newAuthenticator,
+    const savingNewAuth = await db
+      .insert(authenticators)
+      .values({
         userId: user.userId,
-      },
-    });
+        counter: counter,
+        credentialBackedup: credentialBackedUp,
+        credentialDeviceType: credentialDeviceType,
+        credentialId: credentialID as Buffer,
+        credentialPublicKey: credentialPublicKey as Buffer,
+        transports: [],
+      })
+      .returning();
 
-    console.log("saved in the database: ", savingNewAuth.id);
-
-    prismaClient.$disconnect();
+    console.log("saved in the database: ", savingNewAuth);
 
     return new NextResponse(
       JSON.stringify({

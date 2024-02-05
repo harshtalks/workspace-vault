@@ -15,7 +15,7 @@ import * as React from "react";
 import copy from "copy-to-clipboard";
 import { localKeyForBrowser, secretDB } from "@/utils/local-store";
 import { useAuth } from "@clerk/nextjs";
-import { WorkspaceResponse } from "@/middlewares/type";
+import { RequestResponse } from "@/middlewares/type";
 import { Secret } from "database";
 import { useRouter } from "next/navigation";
 import { useIphonePassword } from "@/hooks/use-iphone-password";
@@ -61,7 +61,7 @@ function GenerateKey({
       });
 
       const savedHashResponseJson =
-        (await savedHashResponse.json()) as WorkspaceResponse<Secret>;
+        (await savedHashResponse.json()) as RequestResponse<Secret>;
 
       if (savedHashResponseJson.status === "error") {
         throw new Error(savedHashResponseJson.error);

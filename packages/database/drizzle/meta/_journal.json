@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1705340064359,
+      "tag": "0000_lying_gravity",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1705398334394,
+      "tag": "0001_deep_groot",
+      "breakpoints": true
+    }
+  ]
+}

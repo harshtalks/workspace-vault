@@ -1,4 +1,4 @@
-import { WorkspaceError, WorkspaceSuccess } from "@/middlewares/type";
+import { RequestError, RequestSuccess } from "@/middlewares/type";
 import { hash } from "bcryptjs";
 import { PrismaClient, Secret } from "database";
 import { NextRequest, NextResponse } from "next/server";
@@ -28,12 +28,12 @@ export const POST = async (request: NextRequest) => {
       {
         status: "success",
         result: existingSecret,
-      } as WorkspaceSuccess<Secret>,
+      } as RequestSuccess<Secret>,
       { status: 201 }
     );
   } catch (error) {
     return NextResponse.json(
-      { error: (error as Error).message, status: "error" } as WorkspaceError,
+      { error: (error as Error).message, status: "error" } as RequestError,
       {
         status: 400,
       }

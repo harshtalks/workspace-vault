@@ -1,4 +1,4 @@
-import { WorkspaceError, WorkspaceSuccess } from "@/middlewares/type";
+import { RequestError, RequestSuccess } from "@/middlewares/type";
 import { currentUser } from "@clerk/nextjs";
 import { Button } from "@ui/components/ui/button";
 import { PrismaClient } from "database";

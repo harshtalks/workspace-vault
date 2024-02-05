@@ -1,5 +1,5 @@
 import { RedisFileAccess } from "@/app/api/workspaces/access/route";
-import { WorkspaceResponse } from "@/middlewares/type";
+import { RequestResponse } from "@/middlewares/type";
 import { redisClient } from "@/store/redis";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 
@@ -17,7 +17,7 @@ import { cn } from "@ui/lib/utils";
 
 async function letsGetTheLogsAndSeeWhoHasDoneWhat<Tdata>(
   envId: string
-): Promise<WorkspaceResponse<Tdata[]>> {
+): Promise<RequestResponse<Tdata[]>> {
   try {
     const response = await redisClient.zrange<Tdata[]>(
       `recentLogs:${envId}`,

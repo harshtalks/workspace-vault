@@ -10,12 +10,7 @@ export const metadata: Metadata = {
 };
 
 const Page = () => {
-  return (
-    <div className="w-2/5 mx-auto min-h-[calc(100vh-100px)] flex-col flex items-center justify-center">
-      <AddWorkspace />
-      <Workspaces />
-    </div>
-  );
+  return <Workspaces />;
 };
 
 export default Page;

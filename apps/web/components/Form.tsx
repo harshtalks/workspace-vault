@@ -13,7 +13,12 @@ import { Textarea } from "@ui/components/ui/textarea";
 import { Label } from "@ui/components/ui/label";
 import { Input } from "ui/components/ui/input";
 import Link from "next/link";
-import { EyeOpenIcon, EyeNoneIcon, ReloadIcon } from "@radix-ui/react-icons";
+import {
+  EyeOpenIcon,
+  EyeNoneIcon,
+  ReloadIcon,
+  ListBulletIcon,
+} from "@radix-ui/react-icons";
 import { ReadFile } from "./read-file";
 import { atom, useRecoilState } from "recoil";
 import { localKeyForBrowser, secretDB } from "@/utils/local-store";
@@ -24,7 +29,7 @@ import {
   getSalt,
 } from "cryptography";
 import { EnvAPIRequestBody } from "@/app/api/envs/route";
-import { WorkspaceResponse } from "@/middlewares/type";
+import { RequestResponse } from "@/middlewares/type";
 import { EnvironmentVariables } from "database";
 import { toast } from "sonner";
 import {
@@ -35,11 +40,13 @@ import { useAuth } from "@clerk/nextjs";
 import { getName } from "@/utils/random-name-generator";
 import { Badge } from "@ui/components/ui/badge";
 import { GetEnvDataFromServer } from "@/services/env";
+import { variables } from "database";
 
 export type AddNewEnvProps = {
-  envariables: string;
   readLimits?: number;
   name: string;
+  envariables: string;
+  type: "input";
 };
 
 export function Form({
@@ -60,18 +67,10 @@ export function Form({
   const [state, setState] = useRecoilState(
     atom<AddNewEnvProps>({
       key: "AddNewFile",
-      default:
-        resultFromServer && resultFromServer.status === "success"
-          ? {
-              envariables: "",
-              readLimits: -1, // -1 means unlimited
-              name: resultFromServer.result.name,
-            }
-          : {
-              envariables: "",
-              readLimits: 19, // -1 means unlimited
-              name: "",
-            },
+      default: {
+        readLimits: -1,
+        type: "key",
+      },
     })
   );
   React.useEffect(() => {
@@ -104,7 +103,7 @@ export function Form({
           }),
         });
 
-        const responseJson: WorkspaceResponse<boolean> = await response.json();
+        const responseJson: RequestResponse<boolean> = await response.json();
 
         if (responseJson.status === "error") {
           throw new Error(responseJson.error);
@@ -215,7 +214,7 @@ export function Form({
         } as EnvAPIRequestBody),
       });
 
-      const responseWhenDatabaseResponded: WorkspaceResponse<EnvironmentVariables> =
+      const responseWhenDatabaseResponded: RequestResponse<EnvironmentVariables> =
         await hittingTheDatabase.json();
 
       if (responseWhenDatabaseResponded.status === "error") {
@@ -234,7 +233,7 @@ export function Form({
         body: JSON.stringify(redisAccessLog),
       });
 
-      const whatTheHellServerSaid: WorkspaceResponse<RedisFileAccess> =
+      const whatTheHellServerSaid: RequestResponse<RedisFileAccess> =
         await givingServerTheData.json();
 
       if (whatTheHellServerSaid.status === "error") {
@@ -298,24 +297,30 @@ export function Form({
                 </div>
               </div>
 
-              <Button
-                onClick={(e) => {
-                  e.preventDefault();
-                  setHideEnvs((current) => !current);
-                }}
-                className="w-fit text-xs"
-                variant="ghost"
-              >
-                {hideEnvs ? (
-                  <>
-                    <EyeOpenIcon className="mr-2 h-4 w-4" /> visible
-                  </>
-                ) : (
-                  <>
-                    <EyeNoneIcon className="mr-2 h-4 w-4" /> hide
-                  </>
-                )}
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setHideEnvs((current) => !current);
+                  }}
+                  className="w-fit text-xs"
+                  variant="ghost"
+                >
+                  {hideEnvs ? (
+                    <>
+                      <EyeOpenIcon className="mr-2 h-4 w-4" /> visible
+                    </>
+                  ) : (
+                    <>
+                      <EyeNoneIcon className="mr-2 h-4 w-4" /> hide
+                    </>
+                  )}
+                </Button>
+
+                <Button variant="ghost">
+                  <ListBulletIcon className="mr-2 h-4 w-4" /> List View
+                </Button>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

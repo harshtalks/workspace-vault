@@ -1,8 +1,8 @@
 import { AddNewEnvProps } from "@/components/Form";
 import {
-  WorkspaceError,
-  WorkspaceResponse,
-  WorkspaceSuccess,
+  RequestError,
+  RequestResponse,
+  RequestSuccess,
 } from "@/middlewares/type";
 import { EnvironmentVariables, prismaClient } from "database";
 import { NextResponse } from "next/server";
@@ -73,14 +73,14 @@ export const POST = async (request: Request) => {
       {
         result: envVault,
         status: "success",
-      } as WorkspaceSuccess<EnvironmentVariables>,
+      } as RequestSuccess<EnvironmentVariables>,
       {
         status: 201,
       }
     );
   } catch (error) {
     return NextResponse.json(
-      { error: (error as Error).message, status: "error" } as WorkspaceError,
+      { error: (error as Error).message, status: "error" } as RequestError,
       {
         status: 400,
       }

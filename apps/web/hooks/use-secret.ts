@@ -1,10 +1,10 @@
 "use client";
-import { WorkspaceResponse, WorkspaceSuccess } from "@/middlewares/type";
+import { RequestResponse, RequestSuccess } from "@/middlewares/type";
 import { Organization, Secret } from "database";
 import React from "react";
 import useSWR, { Fetcher } from "swr";
 
-export const getFetcher: Fetcher<WorkspaceResponse<Secret>> = (url: string) =>
+export const getFetcher: Fetcher<RequestResponse<Secret>> = (url: string) =>
   fetch(url).then((res) => res.json());
 
 const useSecret = (

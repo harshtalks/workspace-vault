@@ -1,4 +1,4 @@
-import { WorkspaceError, WorkspaceSuccess } from "@/middlewares/type";
+import { RequestError, RequestSuccess } from "@/middlewares/type";
 import { EnvironmentVariables, prismaClient } from "database";
 import { NextResponse } from "next/server";
 
@@ -16,14 +16,14 @@ export const POST = async (request: Request) => {
       {
         result: envs,
         status: "success",
-      } as WorkspaceSuccess<EnvironmentVariables[]>,
+      } as RequestSuccess<EnvironmentVariables[]>,
       {
         status: 400,
       }
     );
   } catch (error) {
     return NextResponse.json(
-      { error: (error as Error).message, status: "error" } as WorkspaceError,
+      { error: (error as Error).message, status: "error" } as RequestError,
       {
         status: 400,
       }

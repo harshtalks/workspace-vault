@@ -1,11 +1,11 @@
-import { WorkspaceError, WorkspaceSuccess } from "@/middlewares/type";
-import { prismaClient } from "database";
+import { RequestError, RequestSuccess } from "@/middlewares/type";
+import db, { prismaClient } from "database";
 
 export type GetEnvDataFromServer = Awaited<
   ReturnType<typeof getEnvDataFromServer>
 >;
 
-export type ExtractWorkspaceSuccess<T> = T extends { status: "success" }
+export type ExtractRequestSuccess<T> = T extends { status: "success" }
   ? T
   : never;
 
@@ -32,14 +32,14 @@ export const getEnvDataFromServer = async (env: number) => {
       },
     });
 
-    return { status: "success", result: file } as WorkspaceSuccess<typeof file>;
+    return { status: "success", result: file } as RequestSuccess<typeof file>;
   } catch (error) {
     return (
       error instanceof Error &&
       ({
         error: error.message,
         status: "error",
-      } as WorkspaceError)
+      } as RequestError)
     );
   } finally {
     prismaClient.$disconnect();
@@ -47,4 +47,4 @@ export const getEnvDataFromServer = async (env: number) => {
 };
 
 export type WhatServerPromisedMeUponTheirSuccess =
-  ExtractWorkspaceSuccess<GetEnvDataFromServer>;
+  ExtractRequestSuccess<GetEnvDataFromServer>;

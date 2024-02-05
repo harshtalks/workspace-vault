@@ -11,13 +11,19 @@ import {
 import { Button } from "@ui/components/ui/button";
 import { Input } from "@ui/components/ui/input";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { OrgMember, Organization } from "database";
-import { WorkspaceResponse } from "@/middlewares/type";
+import { secrets, workspaces } from "database";
+import { RequestResponse } from "@/middlewares/type";
 import { toast } from "sonner";
 import { getName } from "@/utils/random-name-generator";
 import { useRouter } from "next/navigation";
+import { randomValueGeneratorCrypto } from "cryptography";
+import { UseQueryResult } from "@tanstack/react-query";
 
-const AddWorkspace = () => {
+const AddWorkspace = ({
+  refetch,
+}: {
+  refetch: UseQueryResult<any, any>["refetch"];
+}) => {
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -26,11 +32,21 @@ const AddWorkspace = () => {
   const handler = async () => {
     setIsLoading(true);
     try {
-      const uri = "/api/workspaces/" + name;
+      const uri = "/api/workspaces";
 
-      const response = await fetch(uri);
+      const response = await fetch(uri, {
+        method: "post",
+        body: JSON.stringify({
+          workspace: { name: name },
+          secret: {
+            salt: randomValueGeneratorCrypto(),
+            secret: randomValueGeneratorCrypto(),
+            name: getName(),
+          },
+        } as { workspace: typeof workspaces.$inferInsert; secret: typeof secrets.$inferInsert }),
+      });
 
-      const responseJson: WorkspaceResponse<Organization> =
+      const responseJson: RequestResponse<typeof workspaces.$inferSelect> =
         await response.json();
 
       if (responseJson.status === "error") {
@@ -41,7 +57,8 @@ const AddWorkspace = () => {
         `New workspace (organization) is created with name "${name}" and id "${responseJson.result.id}"`
       );
 
-      router.push(`/workspaces/${responseJson.result.id}/generate-secret`);
+      refetch();
+      setName("");
     } catch (error) {
       error instanceof Error
         ? toast.error(`${error.name}: ${error.message}`)
