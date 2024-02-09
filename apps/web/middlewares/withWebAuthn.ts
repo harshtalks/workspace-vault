@@ -8,6 +8,7 @@ import {
 import { MiddlewareFactory } from "./type";
 import { jwtVerify } from "jose";
 import { UNAUTHORIZED } from "http-status";
+import ROUTES from "@/lib/routes";
 export const withWebAuthn: MiddlewareFactory = (next: NextMiddleware) => {
   return async (request: NextRequest, _next: NextFetchEvent) => {
     const callbackUrl = new URL(request.url);
@@ -50,7 +51,14 @@ export const withWebAuthn: MiddlewareFactory = (next: NextMiddleware) => {
           }
           return NextResponse.redirect(
             new URL(
-              `/get-started/authenticate?callbackMFA=${callbackUrl.toString()}`,
+              ROUTES.webAuthRedirect(
+                {},
+                {
+                  search: {
+                    callbackMFA: callbackUrl.toString(),
+                  },
+                }
+              ),
               request.url
             )
           );
@@ -82,7 +90,7 @@ export const withWebAuthn: MiddlewareFactory = (next: NextMiddleware) => {
           ) {
             // Redirect the user to the home page after successful authentication
             return NextResponse.redirect(
-              new URL("/get-started/workspaces/", request.url)
+              new URL(ROUTES.webAuthRedirect(), request.url)
             );
           }
         } catch (e) {
@@ -94,7 +102,14 @@ export const withWebAuthn: MiddlewareFactory = (next: NextMiddleware) => {
             // Redirect the user to the login page after failed verification
             return NextResponse.redirect(
               new URL(
-                `/get-started/authenticate?callbackMFA=${callbackUrl.toString()}`,
+                ROUTES.webAuthRedirect(
+                  {},
+                  {
+                    search: {
+                      callbackMFA: callbackUrl.toString(),
+                    },
+                  }
+                ),
                 request.url
               )
             );

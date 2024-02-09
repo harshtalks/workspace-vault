@@ -1,11 +1,12 @@
 "use client";
 import { handleWebAuthenticate } from "@/async/web-auth";
 import { WebAuthSignedStates } from "@/components/stepper/webauth-signup";
+import ROUTES from "@/lib/routes";
 import { useAuth } from "@clerk/nextjs";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { Button } from "@ui/components/ui/button";
 import { SignJWT } from "jose";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 import { toast } from "sonner";
 
@@ -13,7 +14,7 @@ const ActionHandler = () => {
   const [isSigned, setIsSigned] = React.useState<WebAuthSignedStates>("idle");
   const { userId } = useAuth();
   const router = useRouter();
-  const callbackUrl = useSearchParams().get("callbackMFA");
+  const { callbackMFA } = ROUTES.webAuthRedirect.useSearchParams();
 
   const handler = async () => {
     try {
@@ -46,7 +47,7 @@ const ActionHandler = () => {
         });
       }
 
-      router.push(callbackUrl ? callbackUrl : "/get-started/workspaces");
+      router.push(callbackMFA ? callbackMFA : "/get-started/workspaces");
       router.refresh();
       setIsSigned("success");
     } catch (error) {

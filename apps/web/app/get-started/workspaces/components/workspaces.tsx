@@ -76,42 +76,45 @@ const Workspaces = () => {
             </div>
           ) : (
             <div className="grid gap-6">
-              {data.result
-                .sort(
-                  (a, b) =>
-                    new Date(b.created_at).getTime() -
-                    new Date(a.created_at).getTime()
-                )
-                .map((workspace) => (
-                  <div
-                    key={workspace.id}
-                    className="flex items-center justify-between space-x-4"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div>
-                        <p className="text-sm font-medium leading-none">
-                          {workspace.name}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(workspace.created_at).toLocaleString()}
-                        </p>
+              {data &&
+                data.result
+                  .sort(
+                    (a, b) =>
+                      new Date(b.created_at).getTime() -
+                      new Date(a.created_at).getTime()
+                  )
+                  .map((workspace) => (
+                    <div
+                      key={workspace.id}
+                      className="flex items-center justify-between space-x-4"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div>
+                          <p className="text-sm font-medium leading-none">
+                            {workspace.name}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(workspace.created_at).toLocaleString()}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <Link href={`/workspaces/${workspace.id}/generate-secret`}>
-                      <Button
-                        onClick={() => setIsRouting(workspace.id)}
-                        disabled={isRouting === workspace.id}
+                      <Link
+                        href={`/workspaces/${workspace.id}/generate-secret`}
                       >
-                        <>
-                          {isRouting === workspace.id && (
-                            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                          )}
-                          Select
-                        </>
-                      </Button>
-                    </Link>
-                  </div>
-                ))}
+                        <Button
+                          onClick={() => setIsRouting(workspace.id)}
+                          disabled={isRouting === workspace.id}
+                        >
+                          <>
+                            {isRouting === workspace.id && (
+                              <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                            )}
+                            Select
+                          </>
+                        </Button>
+                      </Link>
+                    </div>
+                  ))}
             </div>
           )}
         </div>
