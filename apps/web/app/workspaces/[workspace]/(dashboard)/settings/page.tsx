@@ -1,25 +1,20 @@
-import { WorkspaceResponse } from "@/middlewares/type";
+import { RequestResponse } from "@/middlewares/type";
 import { Badge } from "@ui/components/ui/badge";
 import { Button } from "@ui/components/ui/button";
 import { Input } from "@ui/components/ui/input";
 import { Separator } from "@ui/components/ui/separator";
 import { error } from "console";
-import { Organization, PrismaClient } from "database";
+import db, { eq, workspaces } from "database";
 import React from "react";
 
-export const getWorkspaceData = async (
-  workspace: string
-): Promise<WorkspaceResponse<Organization>> => {
+export const getWorkspaceData = async (workspace: string) => {
   try {
-    const prisma = new PrismaClient();
-
-    const workspaceData = await prisma.organization.findUniqueOrThrow({
-      where: {
-        id: workspace,
+    const workspaceData = await db.query.workspaces.findFirst({
+      where: eq(workspaces.id, workspace),
+      with: {
+        members: true,
       },
     });
-
-    prisma.$disconnect();
 
     return {
       status: "success",

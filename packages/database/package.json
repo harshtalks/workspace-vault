@@ -4,14 +4,16 @@
   "main": "./index.ts",
   "types": "./index.ts",
   "dependencies": {
-    "@prisma/client": "latest"
+    "@prisma/client": "latest",
+    "drizzle-orm": "^0.29.3",
+    "postgres": "^3.4.3"
   },
   "devDependencies": {
+    "drizzle-kit": "^0.20.12",
     "prisma": "latest"
   },
   "scripts": {
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push --skip-generate",
-    "db:studio": "prisma studio"
+    "db:generate": "drizzle-kit generate:pg",
+    "db:migrate": "ts-node src/migrate.ts"
   }
 }

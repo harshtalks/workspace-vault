@@ -89,10 +89,17 @@ export const handleWebAuthenticate = async (
       cache: "no-cache",
     });
 
+    console.log(responseFromTheServer);
+
     // unmarshall
 
     const unmarshalledResponseFromTheServer: GenerateOptions<PublicKeyCredentialRequestOptionsJSON> =
       await responseFromTheServer.json();
+
+    console.log(
+      "🚀 ~ unmarshalledResponseFromTheServer:",
+      unmarshalledResponseFromTheServer
+    );
 
     if (unmarshalledResponseFromTheServer.status === "error") {
       throw new Error(unmarshalledResponseFromTheServer.error);
@@ -100,9 +107,12 @@ export const handleWebAuthenticate = async (
 
     // starting the authentication
 
+    console.log("star6ting...");
     const authResponse = await startAuthentication(
       unmarshalledResponseFromTheServer.options
     );
+
+    console.log(authResponse);
 
     const verificationResponse = await fetch(
       "/api/webauth/verify-authentication",

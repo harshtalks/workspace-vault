@@ -1,25 +1,18 @@
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { Webhook } from "svix";
-import { PrismaClient } from "database";
+import db, { eq, users } from "database";
 import { NextRequest, NextResponse } from "next/server";
-import { redirect } from "next/dist/server/api-utils";
-import { Resend } from "resend";
-import { NewUserEmailTemplate } from "@/services/email-templates/new-user";
 
 export const POST = async (request: NextRequest) => {
   // Webhook secrets
-  const WEBHOOK_SECRET = process.env.NEXT_PUBLIC_CLERK_WEBHOOK;
+  // const WEBHOOK_SECRET = process.env.NEXT_PUBLIC_CLERK_WEBHOOK;
 
-  const resend = new Resend(process.env.NEXT_PUBLIC_RESEND);
-
-  const prisma = new PrismaClient();
-
-  if (!WEBHOOK_SECRET) {
-    throw new Error(
-      "Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local"
-    );
-  }
+  // if (!WEBHOOK_SECRET) {
+  //   throw new Error(
+  //     "Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local"
+  //   );
+  // }
 
   // Header
   const headerPayload = headers();
@@ -39,7 +32,7 @@ export const POST = async (request: NextRequest) => {
   const body = JSON.stringify(payload);
 
   // Create a new SVIX instance with your secret.
-  const webhook = new Webhook(WEBHOOK_SECRET);
+  const webhook = new Webhook("whsec_ehjAZ18zoh2wgDWsv94WqkpkIab4Zu+c");
 
   // instance of event
   let event: WebhookEvent;
@@ -66,48 +59,36 @@ export const POST = async (request: NextRequest) => {
 
   if (eventType === "user.created") {
     try {
-      const user = await prisma.user.create({
-        data: {
-          id: event.data.id,
+      const insertedUser = await db
+        .insert(users)
+        .values({
+          id,
           email: event.data.email_addresses[0].email_address,
           firstName: event.data.first_name,
           lastName: event.data.last_name,
-          created_at: new Date(event.data.created_at),
-          ...(event.data.has_image && { avatar: event.data.image_url }),
-        },
-      });
-      console.log(`user with and ID of ${id} is saved in database.`);
+          username: event.data.username,
+        })
+        .onConflictDoNothing()
+        .returning();
+
+      console.log(
+        `user with and ID of ${insertedUser[0].id} is saved in database.`
+      );
     } catch (error) {
       error instanceof Error && console.error(error.message);
     }
   } else if (eventType === "user.deleted") {
     try {
-      const user = await prisma.user
-        .delete({
-          where: {
-            id: event.data.id,
-          },
-        })
-        .then(async (user) => {
-          await resend.emails.send({
-            from: "onboarding@resend.dev",
-            to: [user.email],
-            subject: "Welcome To Workspace Vault",
-            react: NewUserEmailTemplate({
-              name: user.firstName,
-              email: user.email,
-              userId: user.id,
-            }),
-          });
-        });
+      const user = await db
+        .delete(users)
+        .where(eq(users.id, event.data.id))
+        .returning();
     } catch (error) {
       error instanceof Error && console.error(error.message);
     }
   } else if (eventType === "session.ended") {
     request.cookies.delete("webAuthn");
   }
-
-  prisma.$disconnect();
 
   return new NextResponse(JSON.stringify({ id: id }), { status: 201 });
 };
