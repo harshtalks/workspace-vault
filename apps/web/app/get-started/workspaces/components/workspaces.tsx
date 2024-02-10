@@ -88,14 +88,14 @@ const Workspaces = () => {
               <div className="flex items-center justify-center p-4">
                 <Badge variant="destructive">{error.message}</Badge>
               </div>
-            ) : data.status === "success" ? (
+            ) : data && data.status === "success" ? (
               <div className="grid gap-6">
                 {data.result.length ? (
                   data.result
                     .sort(
                       (a, b) =>
-                        new Date(b.createdAt).getTime() -
-                        new Date(a.createdAt).getTime()
+                        new Date(b.createdAt!).getTime() -
+                        new Date(a.createdAt!).getTime()
                     )
                     .map((workspace) => (
                       <div
@@ -108,7 +108,7 @@ const Workspaces = () => {
                               {workspace.name}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                              {new Date(workspace.createdAt).toLocaleString()}
+                              {new Date(workspace.createdAt!).toLocaleString()}
                             </p>
                           </div>
                         </div>
@@ -133,7 +133,7 @@ const Workspaces = () => {
               </div>
             ) : (
               <div className="flex items-center justify-center p-4">
-                <Badge variant="destructive">{data.error}</Badge>
+                <Badge variant="destructive">{data?.error}</Badge>
               </div>
             )}
           </div>
