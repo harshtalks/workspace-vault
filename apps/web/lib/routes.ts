@@ -111,6 +111,10 @@ const ROUTES = {
     })
   ),
   getStarted: makeRoute(() => "/get-started", z.object({})),
+  workspace: makeRoute(
+    ({ workspaceId }) => `/api/workspaces/${workspaceId}`,
+    z.object({ workspaceId: z.string() })
+  ),
 };
 
 export default ROUTES;

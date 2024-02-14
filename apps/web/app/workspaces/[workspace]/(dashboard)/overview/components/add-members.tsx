@@ -8,12 +8,9 @@ import {
 } from "@ui/components/ui/dialog";
 import { Input } from "@ui/components/ui/input";
 
-import useSWRImmutable from "swr/immutable";
 import { useState } from "react";
-import { OrgMember, Role, User } from "database";
-import { WorkspaceResponse } from "@/middlewares/type";
+import { RequestResponse } from "@/middlewares/type";
 import { Avatar, AvatarFallback, AvatarImage } from "@ui/components/ui/avatar";
-import { Fetcher } from "swr";
 import {
   Card,
   CardContent,
@@ -42,20 +39,29 @@ import { Switch } from "@ui/components/ui/switch";
 import { ScrollArea } from "@ui/components/ui/scroll-area";
 import { cn } from "@ui/lib/utils";
 import { toast } from "sonner";
+import { roleEnum, users as dbUsers } from "database";
+import { useQuery } from "@tanstack/react-query";
 
-const commandItems = [
+import { useDebounce } from "@uidotdev/usehooks";
+import { useRouter } from "next/navigation";
+
+const commandItems: {
+  value: (typeof roleEnum.enumValues)[number];
+  name: string;
+  label: string;
+}[] = [
   {
-    value: "dev",
-    name: "developer",
+    value: "Dev",
+    name: "Developer",
     label: "Can edit and view the workspace files.",
   },
   {
-    value: "qa",
+    value: "QA",
     name: "QA Bro",
     label: "Can view the workspace files.",
   },
   {
-    value: "admin",
+    value: "Admin",
     name: "Admin",
     label: "Can add user, edit and view the workspace files.",
   },
@@ -63,11 +69,10 @@ const commandItems = [
 
 export type MembersToAdd = {
   id: string;
-  role: Role;
+  role: (typeof roleEnum.enumValues)[number];
 };
 
-const fetcher: Fetcher<WorkspaceResponse<User[]>, string> = (key) =>
-  fetch(key).then((res) => res.json());
+const fetcher = (key: string) => fetch(key).then((res) => res.json());
 
 export default function AddMembers({
   workspace,
@@ -81,16 +86,20 @@ export default function AddMembers({
   const [membersToAdd, setMembersToAdd] = useState<MembersToAdd[]>([]);
   const [isPublishing, setIsPublishing] = useState(false);
 
+  const searchParams = useDebounce([memberEmail, workspace], 500);
+  const router = useRouter();
+
   const {
     isLoading,
     data: users,
     error,
-  } = useSWRImmutable(
-    memberEmail !== ""
-      ? `${window.location.origin}/api/users/search?email=${memberEmail}&workspace=${workspace}`
-      : null,
-    fetcher
-  );
+  } = useQuery<RequestResponse<(typeof dbUsers.$inferSelect)[]>>({
+    queryKey: ["searchUsers", searchParams],
+    queryFn: () =>
+      fetcher(
+        `${window.location.origin}/api/users/search?email=${memberEmail}&workspace=${workspace}`
+      ),
+  });
 
   const handler = async () => {
     setIsPublishing(true);
@@ -103,7 +112,7 @@ export default function AddMembers({
         }),
       });
 
-      const serverResponse: WorkspaceResponse<OrgMember[]> =
+      const serverResponse: RequestResponse<(typeof dbUsers.$inferSelect)[]> =
         await fetchingResponseFromTheServer.json();
 
       if (serverResponse.status === "error") {
@@ -112,6 +121,7 @@ export default function AddMembers({
 
       setMembersToAdd([]);
       setMemberEmail("");
+      router.refresh();
       return serverResponse.result;
     } catch (error) {
       throw error;
@@ -180,7 +190,7 @@ export default function AddMembers({
                                       return forReal
                                         ? [
                                             ...prevMembersToAdd,
-                                            { id: user.id, role: "dev" },
+                                            { id: user.id, role: "Dev" },
                                           ]
                                         : prevMembersToAdd.filter(
                                             (el) => el.id !== user.id
@@ -228,6 +238,17 @@ export default function AddMembers({
                                           <CommandItem
                                             key={index}
                                             onSelect={(value) => {
+                                              const values = [
+                                                "Admin",
+                                                "Dev",
+                                                "QA",
+                                              ] as (typeof roleEnum.enumValues)[number][];
+                                              const currentRole = values.find(
+                                                (el) =>
+                                                  el.toLowerCase() ===
+                                                  value.toLowerCase()
+                                              )!;
+
                                               setMembersToAdd(
                                                 (prevMembersToAdd) => {
                                                   const existingMemberIndex =
@@ -244,7 +265,7 @@ export default function AddMembers({
                                                           ),
                                                           {
                                                             id: user.id,
-                                                            role: value as Role,
+                                                            role: currentRole,
                                                           }, // Update the role as needed
                                                           ...prevMembersToAdd.slice(
                                                             existingMemberIndex +
@@ -255,7 +276,7 @@ export default function AddMembers({
                                                           ...prevMembersToAdd,
                                                           {
                                                             id: user.id,
-                                                            role: "dev" as Role,
+                                                            role: currentRole,
                                                           },
                                                         ];
 
@@ -285,8 +306,8 @@ export default function AddMembers({
                 </>
               ) : (
                 <div className="flex items-center justify-center p-4">
-                  <Badge className="uppercase px-4 py-2">
-                    No User {memberEmail && " with "} {memberEmail}
+                  <Badge variant="secondary" className="uppercase px-4 py-2">
+                    No user found {searchParams[0] && "with " + searchParams[0]}
                   </Badge>
                 </div>
               )}
@@ -295,7 +316,7 @@ export default function AddMembers({
           <CardFooter className="flex flex-col items-start gap-2">
             <Separator />
             <Button
-              disabled={isPublishing}
+              disabled={!membersToAdd.length || isPublishing}
               onClick={() => {
                 toast.promise(handler, {
                   loading: "Loading...",

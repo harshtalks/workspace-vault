@@ -1,6 +1,7 @@
 import { Redis } from "@upstash/redis";
 
 export const redisClient = new Redis({
-  url: process.env.NEXT_PUBLIC_REDIS_URL,
-  token: process.env.NEXT_PUBLIC_REDIS_SECRET,
+  url: "https://apn1-heroic-fawn-33969.upstash.io",
+  token:
+    "AYSxASQgYzc0OTM3NTMtZTc0MC00MDFmLTllMDctOTc3YTcyNjZiM2JkNjZmZjJhZDUxZjkzNGE5YTgyYjEzZmFhNWYyNzUxZmM=",
 });

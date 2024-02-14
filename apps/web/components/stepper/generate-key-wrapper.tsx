@@ -9,7 +9,7 @@ import { Button } from "@ui/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { Secret } from "database";
 import useSecret from "@/hooks/use-secret";
-import { WorkspaceResponse, WorkspaceSuccess } from "@/middlewares/type";
+import { RequestResponse, RequestSuccess } from "@/middlewares/type";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -37,7 +37,7 @@ const WrapperForGeneratingKey = ({ workspace }: { workspace: string }) => {
         }),
       });
 
-      const responseJson = (await response.json()) as WorkspaceResponse<Secret>;
+      const responseJson = (await response.json()) as RequestResponse<Secret>;
 
       if (responseJson.status === "error") {
         throw new Error(responseJson.error);

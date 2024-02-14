@@ -3,14 +3,14 @@
 import { NextMiddleware } from "next/server";
 export type MiddlewareFactory = (middleware: NextMiddleware) => NextMiddleware;
 
-export type WorkspaceSuccess<TData> = {
+export type RequestSuccess<TData> = {
   status: "success";
   result: TData;
 };
 
-export type WorkspaceError = {
+export type RequestError = {
   status: "error";
   error: string;
 };
 
-export type WorkspaceResponse<Tdata> = WorkspaceSuccess<Tdata> | WorkspaceError;
+export type RequestResponse<Tdata> = RequestSuccess<Tdata> | RequestError;

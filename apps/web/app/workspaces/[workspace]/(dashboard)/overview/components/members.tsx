@@ -1,30 +1,28 @@
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@ui/components/ui/avatar";
-import { PrismaClient } from "database";
+import db, { eq, members } from "database";
 import { Badge } from "@ui/components/badge";
 import { ScrollArea } from "@ui/components/ui/scroll-area";
 import { cn } from "@ui/lib/utils";
+import { currentUser } from "@clerk/nextjs";
 
 const fetchMemberForTheOrg = async (workspace: string) => {
-  const prismaClient = new PrismaClient();
   try {
-    const members = await prismaClient.orgMember.findMany({
-      where: {
-        orgId: workspace,
-      },
-      include: {
+    const { id } = await currentUser();
+
+    const result = await db.query.members.findMany({
+      where: eq(members.workspaceId, workspace),
+      with: {
         user: true,
       },
     });
 
     return {
       status: "success",
-      result: members,
+      result: result,
     };
   } catch (error) {
     return { status: "error", error: error instanceof Error && error.message };
-  } finally {
-    prismaClient.$disconnect();
   }
 };
 

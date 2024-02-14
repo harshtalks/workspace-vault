@@ -3,39 +3,31 @@ import React from "react";
 import { DataTable } from "./components/data-table";
 import { columns } from "./components/columns";
 import {
-  WorkspaceError,
-  WorkspaceResponse,
-  WorkspaceSuccess,
+  RequestError,
+  RequestResponse,
+  RequestSuccess,
 } from "@/middlewares/type";
-import { EnvironmentVariables, PrismaClient } from "database";
 import { Button } from "@ui/components/ui/button";
 import Link from "next/link";
+import db, { environmentFiles, eq } from "database";
 
 async function getData(workspace: string) {
   // Fetch data from your API here.
-  const prisma = new PrismaClient();
   try {
-    const envs = await prisma.environmentVariables.findMany({
-      where: {
-        secret: {
-          orgId: workspace,
-        },
-      },
+    const envs = await db.query.environmentFiles.findMany({
+      where: eq(environmentFiles.workspaceId, workspace),
     });
-
-    prisma.$disconnect();
 
     return {
       status: "success",
       result: envs,
-    } as WorkspaceSuccess<EnvironmentVariables[]>;
+    };
   } catch (error) {
     return (
-      error instanceof Error &&
-      ({
+      error instanceof Error && {
         status: "error",
         error: error.message,
-      } as WorkspaceError)
+      }
     );
   }
 }
@@ -48,7 +40,8 @@ const page = async ({ params }: { params: { workspace: string } }) => {
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Welcome back!</h2>
           <p className="text-muted-foreground">
-            Here&apos;s a list of your tasks for this month!
+            Here&apos;s a list of your different project files under this
+            workspace!
           </p>
         </div>
         <div className="flex items-center space-x-2">

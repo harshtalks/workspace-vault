@@ -1,4 +1,4 @@
-import { WorkspaceError, WorkspaceSuccess } from "@/middlewares/type";
+import { RequestError, RequestSuccess } from "@/middlewares/type";
 import { redisClient } from "@/store/redis";
 import { PrismaClient, Role, User } from "database";
 import { NextResponse } from "next/server";
@@ -66,12 +66,12 @@ export const POST = async (request: Request) => {
       {
         status: "success",
         result: true,
-      } as WorkspaceSuccess<boolean>,
+      } as RequestSuccess<boolean>,
       { status: 201 }
     );
   } catch (error) {
     return NextResponse.json(
-      { error: (error as Error).message, status: "error" } as WorkspaceError,
+      { error: (error as Error).message, status: "error" } as RequestError,
       {
         status: 400,
       }

@@ -118,7 +118,7 @@ const fromBase64 = (buffer: string) =>
 
 // generate secret
 
-export const generatePassword = (): string => {
+export const randomValueGeneratorCrypto = (): string => {
   return window.crypto
     .getRandomValues(new BigUint64Array(4))
     .reduce<string>(

@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/app/theme-providers";
 import ClientSessionProvider from "./session-provider";
 import StoreProvider from "./store-provider";
 import NextTopLoader from "nextjs-toploader";
+import QueryProvider from "./query-provider";
 
 export default function RootLayout({
   children,
@@ -12,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <ClientSessionProvider>
-      <html lang="en">
+      <html lang="en" suppressContentEditableWarning>
         <head />
         <body>
           <NextTopLoader
@@ -25,16 +26,18 @@ export default function RootLayout({
             easing="ease"
             speed={200}
           />
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <ThemeLayout>
-              <StoreProvider>{children}</StoreProvider>
-            </ThemeLayout>
-          </ThemeProvider>
+          <QueryProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <ThemeLayout>
+                <StoreProvider>{children}</StoreProvider>
+              </ThemeLayout>
+            </ThemeProvider>
+          </QueryProvider>
         </body>
       </html>
     </ClientSessionProvider>

@@ -19,7 +19,7 @@ import {
 } from "cryptography";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { WorkspaceResponse } from "@/middlewares/type";
+import { RequestResponse } from "@/middlewares/type";
 import { AccessProps } from "@/app/api/workspaces/access/route";
 import { useAuth } from "@clerk/nextjs";
 import copy from "copy-to-clipboard";
@@ -72,7 +72,7 @@ const Details = ({
         }),
       });
 
-      const responseJson: WorkspaceResponse<boolean> = await response.json();
+      const responseJson: RequestResponse<boolean> = await response.json();
 
       if (responseJson.status === "error") {
         throw new Error(responseJson.error);
@@ -106,7 +106,7 @@ const Details = ({
         body: JSON.stringify(bodyForOurRedisData),
       });
 
-      const convertOurRedisResponseToJson: WorkspaceResponse<boolean> =
+      const convertOurRedisResponseToJson: RequestResponse<boolean> =
         await addToRedisMonitoring.json();
 
       if (convertOurRedisResponseToJson.status === "error") {

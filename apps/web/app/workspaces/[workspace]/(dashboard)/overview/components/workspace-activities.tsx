@@ -1,14 +1,14 @@
 import * as React from "react";
 import { RedisActivityForWorkspace } from "../../../../../api/members/route";
 import { redisClient } from "@/store/redis";
-import { WorkspaceResponse } from "@/middlewares/type";
+import { RequestResponse } from "@/middlewares/type";
 import { Badge } from "@ui/components/ui/badge";
 import ActvitiyList from "./activity-list";
 
 // await async lol
 async function fetchRecentActivitiesForTheWorkspace<TData>(
   workspace: string
-): Promise<WorkspaceResponse<TData[]>> {
+): Promise<RequestResponse<TData[]>> {
   try {
     const response = await redisClient.zrange<TData[]>(
       `recentActivities:${workspace}`,
