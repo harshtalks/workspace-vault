@@ -2,11 +2,11 @@
 import React from "react";
 import Link from "next/link";
 import { Button } from "@ui/components/ui/button";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth } from "@/app/session-provider";
 
 const HeroButtons = () => {
-  const { userId } = useAuth();
-  return userId ? (
+  const { user } = useAuth();
+  return user?.id ? (
     <div className="mt-12 mb-6 flex items-center gap-4">
       <Link href="/get-started">
         <Button size="lg" className="px-12">
@@ -21,7 +21,7 @@ const HeroButtons = () => {
     </div>
   ) : (
     <div className="mt-12 mb-6 flex items-center gap-4">
-      <Link href="/sign-in">
+      <Link href="/login/github">
         <Button size="lg" className="px-12">
           Sign In
         </Button>

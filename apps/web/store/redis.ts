@@ -1,6 +1,13 @@
 import { Redis } from "@upstash/redis";
 
+const redisURL = process.env.REDIS_URL;
+const redisToken = process.env.REDIS_TOKEN;
+
+if (!redisURL || !redisToken) {
+  throw new Error("REDIS_URL or REDIS_TOKEN is not set");
+}
+
 export const redisClient = new Redis({
-  url: process.env.NEXT_PUBLIC_REDIS_URL,
-  token: process.env.NEXT_PUBLIC_REDIS_SECRET,
+  url: redisURL,
+  token: redisToken,
 });

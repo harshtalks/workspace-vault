@@ -1,25 +1,26 @@
 import { MembersToAdd } from "@/app/workspaces/[workspace]/(dashboard)/overview/components/add-members";
-import { WorkspaceError, WorkspaceSuccess } from "@/middlewares/type";
+import getAuth from "@/async/getAuth";
+import { RequestError, RequestSuccess } from "@/middlewares/type";
 import { redisClient } from "@/store/redis";
-import { currentUser } from "@clerk/nextjs";
-import {
-  EnvironmentVariables,
-  OrgMember,
-  Permission,
-  Prisma,
-  PrismaClient,
-  Role,
-  User,
+import db, {
+  environmentFiles,
+  eq,
+  inArray,
+  members,
+  permissionsEnum,
+  roleEnum,
+  users,
 } from "database";
-import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 
-const permissionMapper = (role: Role): Permission[] => {
-  if (role === "admin") {
-    return ["add_user", "read", "write"];
-  } else if (role === "dev") {
-    return ["read", "write"];
-  } else return ["read"];
+const permissionMapper = (
+  role: (typeof roleEnum.enumValues)[number]
+): (typeof permissionsEnum.enumValues)[number][] => {
+  if (role === "Admin") {
+    return ["AddMembers", "Read", "Write"];
+  } else if (role === "Dev") {
+    return ["Read", "Write"];
+  } else return ["Read"];
 };
 
 export type RedisActivityForWorkspace =
@@ -35,13 +36,13 @@ export type RedisActivityForWorkspace =
       email: string;
       action: "added file" | "deleted file";
       timestamp: number;
-      file: EnvironmentVariables;
+      file: typeof environmentFiles.$inferSelect;
     };
 
 export type MembersActivityData = {
   id: string;
   fullname: string;
-  avatar: string;
+  avatar: string | null;
   email: string;
 };
 
@@ -52,48 +53,52 @@ export const POST = async (request: Request) => {
       workspace: string;
     } = await request.json();
 
-    const user = await currentUser();
+    const user = await getAuth();
 
-    const prisma = new PrismaClient();
-
-    const userFromDB = await prisma.user.findUniqueOrThrow({
-      where: {
-        id: user.id,
-      },
-      include: {
-        orgMembers: {
-          where: {
-            orgId: body.workspace,
-          },
+    const userFromDB = await db.query.users.findFirst({
+      where: eq(users.id, user.id),
+      with: {
+        members: {
+          where: eq(members.workspaceId, body.workspace),
         },
       },
     });
 
-    if (!userFromDB.orgMembers[0].permission.includes("add_user")) {
+    if (!userFromDB) {
+      throw new Error("user not found");
+    }
+
+    if (!userFromDB.members[0].permissions.includes("AddMembers")) {
       throw new Error(
         "you are not authorized to do this.. don't add your friends or whatever.."
       );
     }
 
-    const users: Prisma.Prisma__OrgMemberClient<OrgMember & { user: User }>[] =
-      [];
+    const transaction = await db.transaction(async (tx) => {
+      const returningMembers = await tx
+        .insert(members)
+        .values([
+          ...body.data.map(
+            (el) =>
+              ({
+                ownerId: el.id,
+                workspaceId: body.workspace,
+                role: el.role,
+                permissions: permissionMapper(el.role),
+              } as typeof members.$inferInsert)
+          ),
+        ])
+        .returning();
 
-    body.data.forEach((eachUser) => {
-      const member = prisma.orgMember.create({
-        data: {
-          userId: eachUser.id,
-          role: eachUser.role,
-          permission: permissionMapper(eachUser.role),
-          orgId: body.workspace,
-          id: nanoid(),
+      const respondingMembers = await tx.query.members.findMany({
+        where: inArray(members.id, [...returningMembers.map((el) => el.id)]),
+        with: {
+          user: true,
         },
-        include: { user: true },
       });
 
-      users.push(member);
+      return respondingMembers;
     });
-
-    const transaction = await prisma.$transaction(users);
 
     // doing redis work.
 
@@ -108,7 +113,7 @@ export const POST = async (request: Request) => {
 
     const workspaceActivityData: RedisActivityForWorkspace = {
       username: user.id,
-      email: user.emailAddresses[0].emailAddress,
+      email: user.email,
       action: "added",
       members: membersActivityData,
       timestamp,
@@ -125,12 +130,12 @@ export const POST = async (request: Request) => {
       {
         status: "success",
         result: transaction,
-      } as WorkspaceSuccess<OrgMember[]>,
+      } as RequestSuccess<typeof transaction>,
       { status: 201 }
     );
   } catch (error) {
     return NextResponse.json(
-      { error: (error as Error).message, status: "error" } as WorkspaceError,
+      { error: (error as Error).message, status: "error" } as RequestError,
       {
         status: 400,
       }

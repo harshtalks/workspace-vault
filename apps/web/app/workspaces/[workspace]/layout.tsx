@@ -1,26 +1,30 @@
+import getAuth from "@/async/getAuth";
+import ROUTES from "@/lib/routes";
 import { secretDB } from "@/utils/local-store";
-import { currentUser } from "@clerk/nextjs";
+import { Badge } from "@ui/components/ui/badge";
 import { Button } from "@ui/components/ui/button";
-import { PrismaClient } from "database";
+import db, { eq, members, workspaces } from "database";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import React from "react";
+import React, { use } from "react";
 
 const onlyMembersAllowed = async (workspaceId: string) => {
-  const user = await currentUser();
-  const prisma = new PrismaClient();
+  const user = await getAuth();
+
+  if (!user) return false;
 
   try {
-    const _ = await prisma.orgMember.findFirstOrThrow({
-      where: {
-        orgId: workspaceId,
-        userId: user.id,
+    const member = await db.query.workspaces.findFirst({
+      where: eq(workspaces.id, workspaceId),
+      with: {
+        members: {
+          where: eq(members.ownerId, user.id),
+        },
       },
     });
 
-    prisma.$disconnect();
-
-    return true;
+    if (member && member.id) {
+      return true;
+    } else return false;
   } catch (error) {
     return false;
   }
@@ -35,16 +39,12 @@ const Layout = async ({
 }) => {
   const response = await onlyMembersAllowed(params.workspace);
 
-  if (!response) {
-    return redirect("/get-started/workspaces");
-  }
-
   return (
     <div>
       {response ? (
         <div className="pb-12">{children}</div>
       ) : (
-        <div className="pt-24">
+        <div className="pt-24 pb-12">
           <div className="flex flex-col items-center justify-center gap-2">
             <h2 className="text-4xl">Invalid Workspace Id :(</h2>
             <div className="h-96 w-96">
@@ -57,10 +57,13 @@ const Layout = async ({
               ></iframe>
             </div>
             <p>
-              We could not find any workspace with id {params.workspace}{" "}
+              We could not find any workspace with id{" "}
+              <Badge variant="outline" className="py-1">
+                {params.workspace}
+              </Badge>{" "}
               attached with your account.
             </p>
-            <Link href="/get-started/workspaces">
+            <Link href={ROUTES.getStarted({})}>
               <Button>All your workspaces</Button>
             </Link>
           </div>

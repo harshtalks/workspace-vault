@@ -1,47 +1,76 @@
-import {
-  WorkspaceError,
-  WorkspaceResponse,
-  WorkspaceSuccess,
-} from "@/middlewares/type";
-import { getAuth } from "@clerk/nextjs/server";
-import { Organization, PrismaClient } from "database";
+import { withError } from "@/async/with-error";
+import { validateRequest } from "@/lib/auth/auth";
+import { RequestSuccess } from "@/middlewares/type";
+import db, { eq, members, secrets, workspaces } from "database";
+import { revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
-export const GET = async (request: NextRequest) => {
-  try {
-    const user = getAuth(request);
+export const GET = withError(async (request: NextRequest) => {
+  const { user } = await validateRequest();
 
-    if (!user.userId) {
-      throw new Error("We could not find the user in the database..");
-    }
+  if (!user) {
+    throw new Error("We could not find the user in the database..");
+  }
 
-    const prismaClient = new PrismaClient();
-
-    const workspaces = await prismaClient.organization.findMany({
-      where: {
-        members: {
-          some: {
-            userId: user.userId,
-          },
-        },
+  const workspacesResult = await db.query.workspaces.findMany({
+    with: {
+      members: {
+        where: eq(members.ownerId, user.id),
       },
+    },
+  });
+
+  return NextResponse.json(
+    {
+      status: "success",
+      result: workspacesResult,
+    } as RequestSuccess<(typeof workspaces.$inferInsert)[]>,
+    { status: 200 }
+  );
+});
+
+export const POST = withError(async (request: NextRequest) => {
+  const body: {
+    workspace: typeof workspaces.$inferInsert;
+    secret: typeof secrets.$inferInsert;
+  } = await request.json();
+
+  const { user } = await validateRequest();
+
+  if (!user) {
+    throw new Error("We could not find the user in the database..");
+  }
+
+  const workspace = await db.transaction(async (tx) => {
+    const workspace = await tx
+      .insert(workspaces)
+      .values({
+        ...body.workspace,
+      })
+      .returning();
+
+    await tx.insert(members).values({
+      ownerId: user.id,
+      workspaceId: workspace[0].id,
+      permissions: ["AddMembers", "Read", "Write"],
+      role: "Admin",
     });
 
-    prismaClient.$disconnect();
+    await tx.insert(secrets).values({
+      ...body.secret,
+      workspaceId: workspace[0].id,
+    });
 
-    return NextResponse.json(
-      {
-        status: "success",
-        result: workspaces,
-      } as WorkspaceSuccess<Organization[]>,
-      { status: 200 }
-    );
-  } catch (error) {
-    return NextResponse.json(
-      { error: (error as Error).message, status: "error" } as WorkspaceError,
-      {
-        status: 400,
-      }
-    );
-  }
-};
+    return workspace[0];
+  });
+
+  revalidateTag("workspaces");
+
+  return NextResponse.json(
+    {
+      status: "success",
+      result: workspace,
+    } as RequestSuccess<typeof workspaces.$inferSelect>,
+    { status: 200 }
+  );
+});

@@ -37,6 +37,8 @@ export function ReadFile({
     const file = e.target.files![0];
     const reader = new FileReader();
     reader.onload = (fileReader) => {
+      if (!fileReader.target) return;
+
       const targetResult = fileReader.target.result;
       if (typeof targetResult !== "string") {
         return;

@@ -1,31 +1,24 @@
-import { PrismaClient, User } from "database";
+import db, { users } from "database";
 import { NextRequest, NextResponse } from "next/server";
-import { faker } from "@faker-js/faker";
+import { fa, faker } from "@faker-js/faker";
 
 export const GET = async () => {
-  const createRandomUser = (): User => {
+  const createRandomUser = (): typeof users.$inferInsert => {
     return {
       id: faker.string.uuid(),
       firstName: faker.person.firstName(),
       email: faker.internet.email(),
       avatar: faker.image.avatar(),
       lastName: faker.person.firstName(),
-      created_at: faker.date.anytime(),
-      updated_at: faker.date.soon(),
+      username: faker.person.middleName() + "_" + faker.person.jobTitle(),
     };
   };
 
-  const USERS: User[] = faker.helpers.multiple(createRandomUser, {
+  const USERS = faker.helpers.multiple(createRandomUser, {
     count: 100,
   });
 
-  const prisma = new PrismaClient();
+  const fakeUsers = await db.insert(users).values(USERS).returning();
 
-  const users = await prisma.user.createMany({
-    data: USERS,
-  });
-
-  prisma.$disconnect();
-
-  return NextResponse.json({ users }, { status: 201 });
+  return NextResponse.json({ fakeUsers }, { status: 201 });
 };

@@ -1,50 +1,16 @@
-import { WorkspaceError, WorkspaceSuccess } from "@/middlewares/type";
-import { prismaClient } from "database";
+import { RequestError, RequestSuccess } from "@/middlewares/type";
 
 export type GetEnvDataFromServer = Awaited<
   ReturnType<typeof getEnvDataFromServer>
 >;
 
-export type ExtractWorkspaceSuccess<T> = T extends { status: "success" }
+export type ExtractRequestSuccess<T> = T extends { status: "success" }
   ? T
   : never;
 
 export const getEnvDataFromServer = async (env: number) => {
-  try {
-    const file = await prismaClient.environmentVariables.findUniqueOrThrow({
-      where: {
-        id: env,
-      },
-      include: {
-        secret: {
-          include: {
-            org: {
-              include: {
-                members: {
-                  where: {
-                    role: "admin",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    return { status: "success", result: file } as WorkspaceSuccess<typeof file>;
-  } catch (error) {
-    return (
-      error instanceof Error &&
-      ({
-        error: error.message,
-        status: "error",
-      } as WorkspaceError)
-    );
-  } finally {
-    prismaClient.$disconnect();
-  }
+  return null;
 };
 
 export type WhatServerPromisedMeUponTheirSuccess =
-  ExtractWorkspaceSuccess<GetEnvDataFromServer>;
+  ExtractRequestSuccess<GetEnvDataFromServer>;

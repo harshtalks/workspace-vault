@@ -10,7 +10,9 @@
     "ui:add": "pnpm --filter ui ui:add",
     "web:add": "pnpm --filter web web:add",
     "crypto:add": "pnpm --filter cryptography crypto:add",
-    "db:generate": "pnpm --filter database db:generate"
+    "db:generate": "pnpm --filter database db:generate",
+    "db:migrate": "pnpm --filter database db:migrate",
+    "db:add": "pnpm --filter database db:add"
   },
   "devDependencies": {
     "@turbo/gen": "^1.9.7",

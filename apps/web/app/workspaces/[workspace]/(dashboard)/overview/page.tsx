@@ -14,58 +14,14 @@ import AddMembers from "./components/add-members";
 import { WorkspaceActivities } from "./components/workspace-activities";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import WorkspaceInfo from "./components/workspace-info";
-import { workerData } from "worker_threads";
 import Link from "next/link";
-import { prismaClient } from "database";
-import { currentUser } from "@clerk/nextjs";
 import { Badge } from "@ui/components/ui/badge";
-
-export const butBroCanYouDoShitHere = async (workspace: string) => {
-  try {
-    const user = await currentUser();
-
-    const canYouAddMembers = await prismaClient.user.findUniqueOrThrow({
-      where: {
-        id: user.id,
-        AND: {
-          orgMembers: {
-            some: {
-              orgId: workspace,
-              userId: user.id,
-            },
-          },
-        },
-      },
-      include: {
-        orgMembers: {
-          where: {
-            orgId: workspace,
-            userId: user.id,
-          },
-        },
-      },
-    });
-
-    return {
-      addUser: !!canYouAddMembers.orgMembers.find((el) =>
-        el.permission.includes("add_user")
-      ),
-      addOrEditFile: !!canYouAddMembers.orgMembers.find((el) =>
-        el.permission.includes("write")
-      ),
-      status: "success",
-    };
-  } catch (error) {
-    return {
-      addUser: false,
-      addOrEditFile: false,
-      status: "error",
-    };
-  }
-};
+import ROUTES from "@/lib/routes";
+import { butBroCanYouDoShitHere } from "@/async/validateUserAccess";
 
 const page = async ({ params }: { params: { workspace: string } }) => {
   const canYouDoAnythingFR = await butBroCanYouDoShitHere(params.workspace);
+
   return (
     <div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -239,7 +195,12 @@ const page = async ({ params }: { params: { workspace: string } }) => {
             </Suspense>
           </CardContent>
           <CardFooter>
-            <Link href={`workspaces/${params.workspace}/settings`}>
+            <Link
+              href={ROUTES.workspaceTab({
+                workspaceId: params.workspace,
+                tab: "settings",
+              })}
+            >
               <Button variant="secondary">Edit workspace settings</Button>
             </Link>
           </CardFooter>

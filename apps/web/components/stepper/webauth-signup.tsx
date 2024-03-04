@@ -15,9 +15,10 @@ import {
 import Link from "next/link";
 import { webAuthnHandler } from "@/async/web-auth";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
 import { SignJWT } from "jose";
+import { RequestResponse } from "@/middlewares/type";
+import { useAuth } from "@/app/session-provider";
 
 type CardProps = React.ComponentProps<typeof Card>;
 
@@ -28,18 +29,20 @@ export function WebAuthSignup({ className, ...props }: CardProps) {
   const [isSigned, setIsSigned] = React.useState<WebAuthSignedStates>("idle");
   const router = useRouter();
 
-  const { userId } = useAuth();
+  const { user } = useAuth();
+
+  const userId = user?.id;
 
   const handler = async () => {
     try {
       const result = await webAuthnHandler(setIsSigned);
 
-      if (result) {
+      if (result && userId) {
         setIsSigned("isPending");
         const alg = "HS256";
 
         const secret = new TextEncoder().encode(
-          "cc7e0d44fd473002f1c42167459001140ec6389b7353f8088f4d9a95f2f596f2"
+          process.env.NEXT_PUBLIC_WEB_AUTH_SECRET
         );
 
         const jwt = await new SignJWT({ userId })
@@ -47,16 +50,20 @@ export function WebAuthSignup({ className, ...props }: CardProps) {
           .setExpirationTime("24h")
           .sign(secret);
 
-        const response = await fetch("/api/internal/jwt", {
+        const response = await fetch("/api/webauth/sign", {
           method: "POST",
           body: JSON.stringify({
             jwt,
           }),
         });
 
-        toast.success(
-          "your key is generated for this device and specified method: "
-        );
+        const result = (await response.json()) as RequestResponse<string>;
+
+        if (result.status !== "success") {
+          throw new Error(result.error);
+        }
+
+        toast.success("You are logged in successfully.");
 
         router.push("/get-started/workspaces");
         setIsSigned("success");
@@ -74,31 +81,28 @@ export function WebAuthSignup({ className, ...props }: CardProps) {
   return (
     <Card className={cn("max-w-[450px] my-8", className)} {...props}>
       <CardHeader>
-        <CardTitle>
-          <span className="text-4xl font-bold block mb-1">1.</span>
-          Multi Factor Authorization
-        </CardTitle>
-        <CardDescription>
-          <p className="mt-2">
-            We utilize WebAuthn to create a set of cryptographic keys: a private
-            key (passkey) that remains securely stored on your device and a
-            corresponding public key that is retained on our server. This public
-            key is employed to register your device to access env files in your
-            account, ensuring their security during transmission and storage. To
-            decrypt these files on your end, your secret key (next step) is
-            used, guaranteeing that your data remains confidential and
-            inaccessible to unauthorized parties. This approach is designed to
-            maintain the utmost privacy and safeguard your data from any
-            potential breaches. If you&apos;d like to delve deeper into the
-            mechanics of this process, you can find additional information{" "}
-            <Link
-              className="underline hover:text-zinc-900 hover:dark:text-white"
-              href="https://webauthn.guide/"
-              target="_blank"
-            >
-              here
-            </Link>
-          </p>
+        <CardTitle>Multi Factor Authorization</CardTitle>
+        <CardDescription className="mt-2">
+          We utilize WebAuthn to add an extra layer of protection to your
+          account. This technology creates a set of cryptographic keys: a
+          private key that remains securely stored on your device, and a
+          corresponding public key that we retain on our server. This public key
+          is used to register your device, providing an additional level of
+          security when accessing env files in your account. This ensures the
+          secure transmission and storage of your data. To decrypt these files
+          on your end, your secret key (next step) is used, ensuring that your
+          data remains confidential and inaccessible to unauthorized parties.
+          This approach is designed to maintain the utmost privacy and safeguard
+          your data from any potential breaches. If you&apos;d like to delve
+          deeper into the mechanics of this process, you can find additional
+          information
+          <Link
+            className="underline hover:text-zinc-900 hover:dark:text-white"
+            href="https://webauthn.guide/"
+            target="_blank"
+          >
+            here
+          </Link>
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">

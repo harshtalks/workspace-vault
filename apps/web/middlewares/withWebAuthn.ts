@@ -67,10 +67,13 @@ export const withWebAuthn: MiddlewareFactory = (next: NextMiddleware) => {
 
       if (cookie) {
         try {
+          const key = process.env.WEBAUTH_SECRET;
+
+          if (!key) {
+            throw new Error("WebAuthn secret not found");
+          }
           // Secret for JWT verification
-          const secret = new TextEncoder().encode(
-            "cc7e0d44fd473002f1c42167459001140ec6389b7353f8088f4d9a95f2f596f2"
-          );
+          const secret = new TextEncoder().encode(key);
 
           // Verify the JWT token
           const { payload, protectedHeader } = await jwtVerify(
@@ -88,14 +91,14 @@ export const withWebAuthn: MiddlewareFactory = (next: NextMiddleware) => {
             currentPath === "/get-started/authenticate" ||
             currentPath === "/get-started"
           ) {
-            // Redirect the user to the home page after successful authentication
+            // Redirect the user to the workspaces page
             return NextResponse.redirect(
-              new URL(ROUTES.webAuthRedirect(), request.url)
+              new URL(ROUTES.workspaces({}), request.url)
             );
           }
         } catch (e) {
           // Token verification failed
-          console.log("Token verification failed");
+          console.error(e);
 
           // Check if the user is already on the login page
           if (currentPath !== "/get-started/authenticate") {

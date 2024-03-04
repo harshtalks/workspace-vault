@@ -1,41 +1,13 @@
-import { WorkspaceResponse } from "@/middlewares/type";
+import { getWorkspaceData } from "@/async/workspaceData";
 import { Badge } from "@ui/components/ui/badge";
 import { Button } from "@ui/components/ui/button";
 import { Input } from "@ui/components/ui/input";
 import { Separator } from "@ui/components/ui/separator";
-import { error } from "console";
-import { Organization, PrismaClient } from "database";
 import React from "react";
-
-export const getWorkspaceData = async (
-  workspace: string
-): Promise<WorkspaceResponse<Organization>> => {
-  try {
-    const prisma = new PrismaClient();
-
-    const workspaceData = await prisma.organization.findUniqueOrThrow({
-      where: {
-        id: workspace,
-      },
-    });
-
-    prisma.$disconnect();
-
-    return {
-      status: "success",
-      result: workspaceData,
-    };
-  } catch (e) {
-    return {
-      status: "error",
-      error: e instanceof Error ? e.message : "Error 500 lol",
-    };
-  }
-};
 
 const page = async ({ params }: { params: { workspace: string } }) => {
   const dataFromServer = await getWorkspaceData(params.workspace);
-  return dataFromServer.status === "success" ? (
+  return dataFromServer.status === "success" && dataFromServer.result ? (
     <div className="hidden space-y-6 pb-16 md:block">
       <div className="space-y-0.5">
         <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
