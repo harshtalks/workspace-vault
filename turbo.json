@@ -12,7 +12,8 @@
     "GITHUB_CLIENT_ID",
     "GITHUB_CLIENT_SECRET",
     "WEBAUTH_SECRET",
-    "NEXT_PUBLIC_WEB_AUTH_SECRET"
+    "NEXT_PUBLIC_WEB_AUTH_SECRET",
+    "BASE_URL"
   ],
   "globalDotEnv": [".env"],
   "pipeline": {
@@ -57,7 +58,8 @@
         "GITHUB_CLIENT_ID",
         "GITHUB_CLIENT_SECRET",
         "WEBAUTH_SECRET",
-        "NEXT_PUBLIC_WEB_AUTH_SECRET"
+        "NEXT_PUBLIC_WEB_AUTH_SECRET",
+        "BASE_URL"
       ]
     }
   }

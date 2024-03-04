@@ -20,11 +20,14 @@ const withLuciaSession = () => async (req: NextRequest) => {
     return NextResponse.next();
   }
   try {
-    const result = await fetch("http://localhost:3000/login/github/validate", {
-      headers: {
-        Cookie: requestHeaders.get("cookie") || "",
-      },
-    });
+    const result = await fetch(
+      `${process.env.BASE_URL}/login/github/validate`,
+      {
+        headers: {
+          Cookie: requestHeaders.get("cookie") || "",
+        },
+      }
+    );
     const response: RequestResponse<{
       session: Session | null;
       user: User | null;
