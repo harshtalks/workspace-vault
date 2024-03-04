@@ -10,6 +10,7 @@ import {
 import { DashboardTab } from "@/store/atom";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import ROUTES from "@/lib/routes";
 
 const states: DashboardTab[] = [
   "overview",
@@ -27,7 +28,13 @@ const TabManager = ({ children }: { children: React.ReactNode }) => {
     <Tabs value={pathname.split("/").pop() || "overview"} className="space-y-4">
       <TabsList>
         {states.map((current) => (
-          <Link key={current} href={`/workspaces/${workspaceId}/${current}`}>
+          <Link
+            key={current}
+            href={ROUTES.workspaceTab({
+              tab: current,
+              workspaceId: workspaceId!,
+            })}
+          >
             <TabsTrigger value={current}>
               {current
                 .split("-")

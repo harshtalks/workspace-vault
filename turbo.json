@@ -1,6 +1,19 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local"],
+  "globalEnv": [
+    "NODE_ENV",
+    "RP_NAME",
+    "RP_ID",
+    "RP_ORIGIN",
+    "REDIS_TOKEN",
+    "REDIS_URL",
+    "DATABASE_URL",
+    "GITHUB_CLIENT_ID",
+    "GITHUB_CLIENT_SECRET",
+    "WEBAUTH_SECRET",
+    "NEXT_PUBLIC_WEB_AUTH_SECRET"
+  ],
   "globalDotEnv": [".env"],
   "pipeline": {
     "db:generate": {
@@ -22,23 +35,6 @@
         ".env.local",
         ".env.production",
         ".env"
-      ],
-      "env": [
-        "NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY",
-        "NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY",
-        "NEXT_PUBLIC_RP_ORIGIN",
-        "NEXT_PUBLIC_RP_ID",
-        "NEXT_PUBLIC_RP_NAME",
-        "NEXT_PUBLIC_CLERK_WEBHOOK",
-        "NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY_WEB",
-        "NEXT_PUBLIC_REDIS_URL",
-        "NEXT_PUBLIC_REDIS_SECRET",
-        "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
-        "CLERK_SECRET_KEY",
-        "NEXT_PUBLIC_CLERK_SIGN_IN_URL",
-        "NEXT_PUBLIC_CLERK_SIGN_UP_URL",
-        "NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL",
-        "NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL"
       ]
     },
     "build": {
@@ -51,21 +47,17 @@
         ".env"
       ],
       "env": [
-        "NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY",
-        "NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY",
-        "NEXT_PUBLIC_RP_ORIGIN",
-        "NEXT_PUBLIC_RP_ID",
-        "NEXT_PUBLIC_RP_NAME",
-        "NEXT_PUBLIC_CLERK_WEBHOOK",
-        "NEXT_PUBLIC_SECRET_FOR_GENERATING_KEY_WEB",
-        "NEXT_PUBLIC_REDIS_URL",
-        "NEXT_PUBLIC_REDIS_SECRET",
-        "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
-        "CLERK_SECRET_KEY",
-        "NEXT_PUBLIC_CLERK_SIGN_IN_URL",
-        "NEXT_PUBLIC_CLERK_SIGN_UP_URL",
-        "NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL",
-        "NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL"
+        "NODE_ENV",
+        "RP_NAME",
+        "RP_ID",
+        "RP_ORIGIN",
+        "REDIS_TOKEN",
+        "REDIS_URL",
+        "DATABASE_URL",
+        "GITHUB_CLIENT_ID",
+        "GITHUB_CLIENT_SECRET",
+        "WEBAUTH_SECRET",
+        "NEXT_PUBLIC_WEB_AUTH_SECRET"
       ]
     }
   }

@@ -1,4 +1,3 @@
-import { getAuth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import type {
   ClientGenerateOptions,
@@ -7,85 +6,74 @@ import type {
 import { verifyRegistrationResponse } from "@simplewebauthn/server";
 import { RegistrationResponseJSON } from "@simplewebauthn/server/script/deps";
 import db, { authenticators } from "database";
+import getAuth from "@/async/getAuth";
+import { withError } from "@/async/with-error";
+import { equals } from "uint8arrays/equals";
+import { toStringFromUint } from "@/async/web-auth";
 
-export const POST = async (request: NextRequest) => {
-  if (
-    !process.env.NEXT_PUBLIC_RP_NAME ||
-    !process.env.NEXT_PUBLIC_RP_ID ||
-    !process.env.NEXT_PUBLIC_RP_ORIGIN
-  ) {
+// Function to convert Uint8Array to string
+
+export const POST = withError(async (request: NextRequest) => {
+  if (!process.env.RP_NAME || !process.env.RP_ID || !process.env.RP_ORIGIN) {
     throw new Error("Internal Server Error");
   }
   // Human-readable title for your website
-  const rpName = process.env.NEXT_PUBLIC_RP_NAME;
+  const rpName = process.env.RP_NAME;
   // A unique identifier for your website
-  const rpID = process.env.NEXT_PUBLIC_RP_ID;
+  const rpID = process.env.RP_ID;
   // The URL at which registrations and authentications should occur
-  const origin = process.env.NEXT_PUBLIC_RP_ORIGIN;
+  const origin = process.env.RP_ORIGIN;
 
-  const user = getAuth(request);
+  const user = await getAuth();
 
-  try {
-    const body: ClientGenerateOptions<RegistrationResponseJSON> =
-      await request.json();
+  const body: ClientGenerateOptions<RegistrationResponseJSON> =
+    await request.json();
 
-    console.log("verification started...");
+  const verification = await verifyRegistrationResponse({
+    response: body.response,
+    expectedChallenge: body.challenge,
+    expectedOrigin: origin,
+    expectedRPID: rpID,
+  });
 
-    const verification = await verifyRegistrationResponse({
-      response: body.response,
-      expectedChallenge: body.challenge,
-      expectedOrigin: origin,
-      expectedRPID: rpID,
-    });
+  const { verified } = verification;
 
-    console.log("verification done...");
+  // POST Registration
 
-    const { verified } = verification;
+  const { registrationInfo } = verification;
 
-    // POST Registration
-
-    const { registrationInfo } = verification;
-    const {
-      credentialPublicKey,
-      credentialID,
-      counter,
-      credentialBackedUp,
-      credentialDeviceType,
-    } = registrationInfo;
-
-    console.log("registrationInfo", registrationInfo);
-
-    const savingNewAuth = await db
-      .insert(authenticators)
-      .values({
-        userId: user.userId,
-        counter: counter,
-        credentialBackedup: credentialBackedUp,
-        credentialDeviceType: credentialDeviceType,
-        credentialId: credentialID as Buffer,
-        credentialPublicKey: credentialPublicKey as Buffer,
-        transports: [],
-      })
-      .returning();
-
-    console.log("saved in the database: ", savingNewAuth);
-
-    return new NextResponse(
-      JSON.stringify({
-        status: "success",
-        verified,
-      } as VerifyOptions),
-      { status: 201, statusText: "Successfully verified" }
-    );
-  } catch (error) {
-    return new NextResponse(
-      JSON.stringify({
-        status: "error",
-        error: error instanceof Error ? error.message : "An Error Occured.",
-      } as VerifyOptions),
-      {
-        status: 404,
-      }
-    );
+  if (!registrationInfo) {
+    throw new Error("Registration Info not found");
   }
-};
+
+  const {
+    credentialPublicKey,
+    credentialID,
+    counter,
+    credentialBackedUp,
+    credentialDeviceType,
+  } = registrationInfo;
+
+  const savingNewAuth = await db
+    .insert(authenticators)
+    .values({
+      userId: user.id,
+      counter: counter,
+      credentialBackedup: credentialBackedUp,
+      credentialDeviceType: credentialDeviceType,
+      credentialId: toStringFromUint(credentialID),
+      credentialPublicKey: toStringFromUint(credentialPublicKey),
+      transports: body.transports,
+    })
+    .returning();
+
+  const whatISendToDB = Buffer.from(credentialID).toString("base64");
+
+  return new NextResponse(
+    JSON.stringify({
+      status: "success",
+      verified,
+    } as VerifyOptions),
+    { status: 201, statusText: "Successfully verified" }
+  );
+});

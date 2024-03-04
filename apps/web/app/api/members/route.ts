@@ -1,7 +1,7 @@
 import { MembersToAdd } from "@/app/workspaces/[workspace]/(dashboard)/overview/components/add-members";
+import getAuth from "@/async/getAuth";
 import { RequestError, RequestSuccess } from "@/middlewares/type";
 import { redisClient } from "@/store/redis";
-import { currentUser } from "@clerk/nextjs";
 import db, {
   environmentFiles,
   eq,
@@ -10,9 +10,7 @@ import db, {
   permissionsEnum,
   roleEnum,
   users,
-  workspaces,
 } from "database";
-import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 
 const permissionMapper = (
@@ -44,7 +42,7 @@ export type RedisActivityForWorkspace =
 export type MembersActivityData = {
   id: string;
   fullname: string;
-  avatar: string;
+  avatar: string | null;
   email: string;
 };
 
@@ -55,7 +53,7 @@ export const POST = async (request: Request) => {
       workspace: string;
     } = await request.json();
 
-    const user = await currentUser();
+    const user = await getAuth();
 
     const userFromDB = await db.query.users.findFirst({
       where: eq(users.id, user.id),
@@ -65,6 +63,10 @@ export const POST = async (request: Request) => {
         },
       },
     });
+
+    if (!userFromDB) {
+      throw new Error("user not found");
+    }
 
     if (!userFromDB.members[0].permissions.includes("AddMembers")) {
       throw new Error(
@@ -111,7 +113,7 @@ export const POST = async (request: Request) => {
 
     const workspaceActivityData: RedisActivityForWorkspace = {
       username: user.id,
-      email: user.emailAddresses[0].emailAddress,
+      email: user.email,
       action: "added",
       members: membersActivityData,
       timestamp,

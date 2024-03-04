@@ -2,81 +2,68 @@ import {
   generateAuthenticationOptions,
   verifyAuthenticationResponse,
 } from "@simplewebauthn/server";
-import { getAuth } from "@clerk/nextjs/server";
 import {
   CredentialDeviceType,
+  PublicKeyCredentialDescriptorFuture,
   PublicKeyCredentialRequestOptionsJSON,
 } from "@simplewebauthn/server/script/deps";
 import { Authenticator, GenerateOptions } from "@/utils/types";
 import { NextRequest, NextResponse } from "next/server";
 import db, { authenticators, eq } from "database";
+import getAuth from "@/async/getAuth";
+import { withError } from "@/async/with-error";
+import { toUintFromStr } from "@/async/web-auth";
 
-export const GET = async (request: NextRequest) => {
-  try {
-    // get user from the clerk
-    const user = getAuth(request);
+export const GET = withError(async (request: NextRequest) => {
+  // get user from the clerk
+  const user = await getAuth();
 
-    if (!user.userId) {
-      throw new Error("You are not authorized.");
-    }
+  // get all the authenticators instances
+  const authResults = await db
+    .select()
+    .from(authenticators)
+    .where(eq(authenticators.userId, user.id));
 
-    // get all the authenticators instances
-    const authResults = await db
-      .select()
-      .from(authenticators)
-      .where(eq(authenticators.userId, user.userId));
+  const userAuthenticators = authResults.map(
+    (auth) =>
+      ({
+        counter: BigInt(auth.counter!),
+        credentialBackedUp: auth.credentialBackedup,
+        credentialDeviceType: auth.credentialDeviceType as CredentialDeviceType,
+        credentialID: toUintFromStr(auth.credentialId),
+        credentialPublicKey: toUintFromStr(auth.credentialPublicKey),
+        transports: auth.transports as unknown as AuthenticatorTransport[],
+      } as Authenticator)
+  );
 
-    const userAuthenticators = authResults.map(
-      (auth) =>
+  const options = await generateAuthenticationOptions({
+    allowCredentials: userAuthenticators.map(
+      (authenticator) =>
         ({
-          counter: BigInt(auth.counter),
-          credentialBackedUp: auth.credentialBackedup,
-          credentialDeviceType:
-            auth.credentialDeviceType as CredentialDeviceType,
-          credentialID: auth.credentialId,
-          credentialPublicKey: auth.credentialPublicKey,
-          transports: auth.transports as unknown as AuthenticatorTransport[],
-        } as Authenticator)
-    );
+          id: authenticator.credentialID,
+          type: "public-key",
+          // Optional
+          transports: authenticator.transports,
+          userVerification: "preferred",
+        } as PublicKeyCredentialDescriptorFuture)
+    ),
+  });
 
-    console.log("user Auths", userAuthenticators);
+  const userCurrentChallenge = {
+    challenge: options.challenge,
+    userId: user.id,
+  };
 
-    const options = await generateAuthenticationOptions({
-      allowCredentials: userAuthenticators.map((authenticator) => ({
-        id: authenticator.credentialID,
-        type: "public-key",
-        // Optional
-        transports: authenticator.transports,
-        userVerification: "preferred",
-      })),
-    });
+  const resp = NextResponse.json(
+    {
+      status: "success",
+      challenge: userCurrentChallenge,
+      options: options,
+    } as GenerateOptions<PublicKeyCredentialRequestOptionsJSON>,
+    { status: 200 }
+  );
 
-    console.log("options generated...", options);
-
-    const userCurrentChallenge = {
-      challenge: options.challenge,
-      userId: user.userId,
-    };
-
-    return NextResponse.json(
-      {
-        status: "success",
-        challenge: userCurrentChallenge,
-        options: options,
-      } as GenerateOptions<PublicKeyCredentialRequestOptionsJSON>,
-      { status: 200 }
-    );
-  } catch (error) {
-    return NextResponse.json(
-      {
-        status: "error",
-        error: error instanceof Error ? error.message : "An error occured",
-      } as GenerateOptions<PublicKeyCredentialRequestOptionsJSON>,
-      {
-        status: 404,
-      }
-    );
-  }
-};
+  return resp;
+});
 
 export const revalidate = 0;

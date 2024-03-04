@@ -1,40 +1,24 @@
-"use client";
-import { deleteCookie, hasCookie, setCookie } from "cookies-next";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { AvatarIcon, ReloadIcon } from "@radix-ui/react-icons";
 import { Button } from "@ui/components/ui/button";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 
 const Deauthenticate = () => {
-  const router = useRouter();
-  const [isClient, setIsClient] = useState(false);
-  const { isSignedIn } = useAuth();
+  const deleteCookie = async () => {
+    "use server";
+    cookies().delete("webAuthn");
+    revalidatePath("/");
+  };
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    !isSignedIn && deleteCookie("webAuthn");
-    router.refresh();
-  }, [isSignedIn]);
-
-  return isClient ? (
-    hasCookie("webAuthn") ? (
-      <Button
-        onClick={() => {
-          deleteCookie("webAuthn");
-          router.push("/get-started/authenticate");
-          router.refresh();
-        }}
-        variant="outline"
-        className="p-2"
-      >
+  return cookies().has("webAuthn") ? (
+    <form action={deleteCookie}>
+      <p className="text-xs text-zinc-600">
+        You are currently authenticated with webauthn
+      </p>
+      <Button variant="outline" className="mt-3">
         De authenticate
       </Button>
-    ) : null
+    </form>
   ) : (
     <></>
   );

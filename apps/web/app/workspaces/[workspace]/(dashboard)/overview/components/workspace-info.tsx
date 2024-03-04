@@ -1,11 +1,11 @@
 import React from "react";
-import { getWorkspaceData } from "../../settings/page";
 import { Badge } from "@ui/components/ui/badge";
 import { roleEnum } from "database";
+import { getWorkspaceData } from "@/async/workspaceData";
 
 const WorkspaceInfo = async ({ workspace }: { workspace: string }) => {
   const getDataFromServer = await getWorkspaceData(workspace);
-  return getDataFromServer.status === "success" ? (
+  return getDataFromServer.status === "success" && getDataFromServer.result ? (
     <div className="w-full flex flex-col gap-y-2">
       <div className="flex flex-col">
         <p className="text-sm text-muted-foreground">Workspace Name</p>
@@ -20,7 +20,7 @@ const WorkspaceInfo = async ({ workspace }: { workspace: string }) => {
       <div className="flex flex-col">
         <p className="text-sm text-muted-foreground">Created on</p>
         <h4>
-          {new Date(getDataFromServer.result.createdAt).toLocaleString(
+          {new Date(getDataFromServer.result.createdAt!).toLocaleString(
             undefined,
             {
               day: "numeric",
@@ -45,8 +45,9 @@ const WorkspaceInfo = async ({ workspace }: { workspace: string }) => {
               <p className="text-sm text-muted-foreground">{el}</p>
               <h6 className="text-sm">
                 {
-                  getDataFromServer.result.members.filter((l) => l.role === el)
-                    .length
+                  getDataFromServer?.result?.members.filter(
+                    (l) => l.role === el
+                  ).length
                 }
               </h6>
             </Badge>

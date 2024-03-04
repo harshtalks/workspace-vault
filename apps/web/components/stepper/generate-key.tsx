@@ -14,9 +14,7 @@ import { encryptTextWithAESGCM } from "cryptography";
 import * as React from "react";
 import copy from "copy-to-clipboard";
 import { localKeyForBrowser, secretDB } from "@/utils/local-store";
-import { useAuth } from "@clerk/nextjs";
 import { RequestResponse } from "@/middlewares/type";
-import { Secret } from "database";
 import { useRouter } from "next/navigation";
 import { useIphonePassword } from "@/hooks/use-iphone-password";
 import { toast } from "sonner";
@@ -42,69 +40,69 @@ function GenerateKey({
     isCopied && setIsCopied((copied) => !copied);
   }, [secret]);
 
-  const handler = async () => {
-    if (!secret) {
-      toast.error("Please Enter the secret before proceeding or generate one.");
-      return;
-    }
+  // const handler = async () => {
+  //   if (!secret) {
+  //     toast.error("Please Enter the secret before proceeding or generate one.");
+  //     return;
+  //   }
 
-    try {
-      setIsLoading(true);
+  //   try {
+  //     setIsLoading(true);
 
-      // saving in the prisma store
-      const savedHashResponse = await fetch("/api/secret/store", {
-        method: "POST",
-        body: JSON.stringify({
-          secret,
-          workspace,
-        }),
-      });
+  //     // saving in the prisma store
+  //     const savedHashResponse = await fetch("/api/secret/store", {
+  //       method: "POST",
+  //       body: JSON.stringify({
+  //         secret,
+  //         workspace,
+  //       }),
+  //     });
 
-      const savedHashResponseJson =
-        (await savedHashResponse.json()) as RequestResponse<Secret>;
+  //     const savedHashResponseJson =
+  //       (await savedHashResponse.json()) as RequestResponse<Secret>;
 
-      if (savedHashResponseJson.status === "error") {
-        throw new Error(savedHashResponseJson.error);
-      }
+  //     if (savedHashResponseJson.status === "error") {
+  //       throw new Error(savedHashResponseJson.error);
+  //     }
 
-      await secretDB.open();
+  //     await secretDB.open();
 
-      const result = await secretDB.secrets.get(workspace);
+  //     const result = await secretDB.secrets.get(workspace);
 
-      if (result) {
-        await secretDB.secrets.delete(workspace);
-      }
+  //     if (result) {
+  //       await secretDB.secrets.delete(workspace);
+  //     }
 
-      // secret handled carefully here.
+  //     // secret handled carefully here.
 
-      const localKey = await localKeyForBrowser();
+  //     const localKey = await localKeyForBrowser();
 
-      const encryptedSecret = await encryptTextWithAESGCM(secret, localKey);
+  //     const encryptedSecret = await encryptTextWithAESGCM(secret, localKey);
 
-      const key = await secretDB.secrets.add(
-        {
-          workspace: workspace,
-          key: encryptedSecret,
-        },
-        workspace
-      );
+  //     const key = await secretDB.secrets.add(
+  //       {
+  //         workspace: workspace,
+  //         key: encryptedSecret,
+  //       },
+  //       workspace
+  //     );
 
-      console.log(key);
+  //     console.log(key);
 
-      const _ = await secretDB.secrets.get(workspace);
+  //     const _ = await secretDB.secrets.get(workspace);
 
-      toast.success(
-        "you have configured your secret. you will lose all your data in case forgotten."
-      );
-      router.push("workspaces/" + workspace + "/overview");
-    } catch (error) {
-      error instanceof Error
-        ? toast.error(`${error.name}: ${error.message}`)
-        : toast.error(`An error occured! Please try again.`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     toast.success(
+  //       "you have configured your secret. you will lose all your data in case forgotten."
+  //     );
+  //     router.push("workspaces/" + workspace + "/overview");
+  //   } catch (error) {
+  //     error instanceof Error
+  //       ? toast.error(`${error.name}: ${error.message}`)
+  //       : toast.error(`An error occured! Please try again.`);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
@@ -122,11 +120,11 @@ function GenerateKey({
             onChange={onChange}
           />
         </div>
-        <Button onClick={handler} type="submit" disabled={isLoading}>
+        {/* <Button onClick={handler} type="submit" disabled={isLoading}>
           <>
             {isLoading && <ReloadIcon className="mr-2 animate-spin" />} Continue
           </>
-        </Button>
+        </Button> */}
         <div className="flex gap-2">
           <Button
             disabled={!secret}

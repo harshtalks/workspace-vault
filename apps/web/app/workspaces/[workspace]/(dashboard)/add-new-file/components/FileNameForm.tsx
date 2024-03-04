@@ -15,14 +15,10 @@ interface FileNameProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function FileNameForm({ className, ...props }: FileNameProps) {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [name, setName] = React.useState("");
-
-  const submitAction = submitActionToAddNewFile.bind(null, props.workspaceId);
-
   return (
     <div className={cn("grid gap-6", className)} {...props}>
-      <form action={submitAction}>
+      <form>
         <div className="grid gap-2">
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="email">
@@ -64,11 +60,5 @@ export function FileNameForm({ className, ...props }: FileNameProps) {
 }
 
 const SubmitButton = () => {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
-      Sign In with Email
-    </Button>
-  );
+  return <Button type="submit">Sign In with Email</Button>;
 };

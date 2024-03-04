@@ -13,23 +13,17 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 
-const raiseError = (message: string): never => {
-  throw new Error(message);
-};
-
 const bytea = customType<{ data: Uint8Array; notNull: true; default: false }>({
   dataType() {
     return "bytea";
   },
 
-  toDriver(value) {
+  toDriver(value: Uint8Array) {
     return Buffer.from(value).toString("base64");
   },
 
   fromDriver(val) {
-    const output = new Uint8Array(Buffer.from(val as string, "base64"));
-
-    return output;
+    return new Uint8Array(Buffer.from(val as string, "base64"));
   },
 });
 
@@ -49,6 +43,7 @@ export const users = pgTable("users", {
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt"),
   avatar: text("avatar"),
+  githubId: text("githubId").unique(),
 });
 
 export const members = pgTable(
@@ -151,6 +146,17 @@ export const variables = pgTable("variables", {
     .notNull(),
 });
 
+export const sessions = pgTable("session", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id),
+  expiresAt: timestamp("expires_at", {
+    withTimezone: true,
+    mode: "date",
+  }).notNull(),
+});
+
 // webauth table
 
 export const authenticators = pgTable("authenticators", {
@@ -158,11 +164,11 @@ export const authenticators = pgTable("authenticators", {
   userId: text("userId")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
-  credentialId: bytea("credentialId"),
-  credentialPublicKey: bytea("credentialPublicKey"),
-  counter: bigint("counter", { mode: "number" }),
-  credentialDeviceType: text("credentialDeviceType"),
-  credentialBackedup: boolean("credentialBackedup"),
+  credentialId: text("credentialId").notNull(),
+  credentialPublicKey: text("credentialPublicKey").notNull(),
+  counter: bigint("counter", { mode: "number" }).notNull(),
+  credentialDeviceType: text("credentialDeviceType").notNull(),
+  credentialBackedup: boolean("credentialBackedup").notNull(),
   transports: text("transports").array(),
 });
 

@@ -1,3 +1,3 @@
-import { EnvironmentVariables } from "database";
+import { environmentFiles } from "database";
 
-export type SecretFiles = Omit<EnvironmentVariables, "updated_at" | "secretId">;
+export type SecretFiles = typeof environmentFiles.$inferSelect;

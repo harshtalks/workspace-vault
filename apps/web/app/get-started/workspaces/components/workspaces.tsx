@@ -24,6 +24,7 @@ import {
 import { cn } from "@ui/lib/utils";
 import ComponentsSkeleton from "./ComponentsSkeleton";
 import AddWorkspace from "./add-workspace";
+import ROUTES from "@/lib/routes";
 
 const Workspaces = () => {
   const {
@@ -112,7 +113,12 @@ const Workspaces = () => {
                             </p>
                           </div>
                         </div>
-                        <Link href={`/workspaces/${workspace.id}/overview`}>
+                        <Link
+                          href={ROUTES.workspaceTab({
+                            workspaceId: workspace.id,
+                            tab: "overview",
+                          })}
+                        >
                           <Button
                             onClick={() => setIsRouting(workspace.id)}
                             disabled={isRouting === workspace.id}

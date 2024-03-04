@@ -10,6 +10,7 @@ import {
 import { Button } from "@ui/components/ui/button";
 import Link from "next/link";
 import db, { environmentFiles, eq } from "database";
+import ROUTES from "@/lib/routes";
 
 async function getData(workspace: string) {
   // Fetch data from your API here.
@@ -19,16 +20,14 @@ async function getData(workspace: string) {
     });
 
     return {
-      status: "success",
+      status: "success" as const,
       result: envs,
     };
   } catch (error) {
-    return (
-      error instanceof Error && {
-        status: "error",
-        error: error.message,
-      }
-    );
+    return {
+      status: "error" as const,
+      error: error instanceof Error ? error.message : "An error occurred",
+    };
   }
 }
 
@@ -45,7 +44,12 @@ const page = async ({ params }: { params: { workspace: string } }) => {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Link href={`workspaces/${params.workspace}/add-new-file`}>
+          <Link
+            href={ROUTES.workspaceTab({
+              workspaceId: params.workspace,
+              tab: "add-new-file",
+            })}
+          >
             <Button>Add New File</Button>
           </Link>
         </div>

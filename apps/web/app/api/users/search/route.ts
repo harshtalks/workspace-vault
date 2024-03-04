@@ -1,5 +1,5 @@
+import getAuth from "@/async/getAuth";
 import { RequestError, RequestSuccess } from "@/middlewares/type";
-import { currentUser } from "@clerk/nextjs";
 import db, { eq, members, users, ilike, ne } from "database";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -7,7 +7,7 @@ export const GET = async (request: NextRequest) => {
   try {
     const url = request.nextUrl;
 
-    const { id } = await currentUser();
+    const { id } = await getAuth();
 
     const email = url.searchParams.get("email");
 

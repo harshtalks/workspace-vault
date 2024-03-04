@@ -18,10 +18,38 @@ import * as React from "react";
 import { toast } from "sonner";
 
 /**
- * @description handle the webAuth Registration process
+ * @name toStringFromUint
+ * @description convert a Uint8Array to a string
+ * @param uint8array {Uint8Array}
+ * @returns
  */
 
-// pscale_pw_sPobWBs3TWpHzL46YWaMAW2VbQLMY3UBrRd7DR9RthV
+export const toStringFromUint = (uint8array: Uint8Array) => {
+  /**
+   * @description Here we have used base64url encoding to convert the Uint8Array to a string
+   * @see https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson
+   */
+  return Buffer.from(uint8array).toString("base64url");
+};
+
+/**
+ * @name toUintFromStr
+ * @description convert a string to a Uint8Array
+ * @param str {string}
+ * @returns
+ */
+
+export const toUintFromStr = (str: string) => {
+  /**
+   * @description Here we have used base64url decoding to convert the string to a Uint8Array
+   * @see https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson
+   */
+  return new Uint8Array(Buffer.from(str, "base64url"));
+};
+
+/**
+ * @description handle the webAuth Registration process
+ */
 
 export const webAuthnHandler = async (
   setIsSigned: React.Dispatch<React.SetStateAction<WebAuthSignedStates>>
@@ -29,18 +57,17 @@ export const webAuthnHandler = async (
   try {
     setIsSigned("isPending");
     // getting the registration options
+
     const responseFromTheServer = await fetch("/api/webauth/register");
 
-    const unmarshallResponseFromTheServer =
+    const registrationResponse =
       (await responseFromTheServer.json()) as GenerateOptions<PublicKeyCredentialCreationOptionsJSON>;
 
-    if (unmarshallResponseFromTheServer.status === "error") {
-      throw new Error(unmarshallResponseFromTheServer.error);
+    if (registrationResponse.status === "error") {
+      throw new Error(registrationResponse.error);
     }
 
-    const authResponse = await startRegistration(
-      unmarshallResponseFromTheServer.options
-    );
+    const authResponse = await startRegistration(registrationResponse.options);
 
     const verificationResponse = await fetch("/api/webauth/verify-register", {
       method: "POST",
@@ -49,7 +76,7 @@ export const webAuthnHandler = async (
       },
       body: JSON.stringify({
         response: authResponse,
-        challenge: unmarshallResponseFromTheServer.challenge.challenge,
+        challenge: registrationResponse.challenge.challenge,
         transports: authResponse.response.transports,
       } as ClientGenerateOptions<RegistrationResponseJSON>),
     });
@@ -70,6 +97,7 @@ export const webAuthnHandler = async (
     }
   } catch (error) {
     setIsSigned("error");
+    console.error(error);
     error instanceof Error
       ? toast.error(`${error.name}: ${error.message}`)
       : toast.error(`An error occured! Please try again.`);
@@ -89,17 +117,8 @@ export const handleWebAuthenticate = async (
       cache: "no-cache",
     });
 
-    console.log(responseFromTheServer);
-
-    // unmarshall
-
     const unmarshalledResponseFromTheServer: GenerateOptions<PublicKeyCredentialRequestOptionsJSON> =
       await responseFromTheServer.json();
-
-    console.log(
-      "🚀 ~ unmarshalledResponseFromTheServer:",
-      unmarshalledResponseFromTheServer
-    );
 
     if (unmarshalledResponseFromTheServer.status === "error") {
       throw new Error(unmarshalledResponseFromTheServer.error);
@@ -107,12 +126,11 @@ export const handleWebAuthenticate = async (
 
     // starting the authentication
 
-    console.log("star6ting...");
     const authResponse = await startAuthentication(
       unmarshalledResponseFromTheServer.options
     );
 
-    console.log(authResponse);
+    type x = AuthenticationResponseJSON;
 
     const verificationResponse = await fetch(
       "/api/webauth/verify-authentication",

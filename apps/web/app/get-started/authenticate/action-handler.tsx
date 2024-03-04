@@ -1,8 +1,8 @@
 "use client";
+import { useAuth } from "@/app/session-provider";
 import { handleWebAuthenticate } from "@/async/web-auth";
 import { WebAuthSignedStates } from "@/components/stepper/webauth-signup";
 import ROUTES from "@/lib/routes";
-import { useAuth } from "@clerk/nextjs";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { Button } from "@ui/components/ui/button";
 import { SignJWT } from "jose";
@@ -12,7 +12,8 @@ import { toast } from "sonner";
 
 const ActionHandler = () => {
   const [isSigned, setIsSigned] = React.useState<WebAuthSignedStates>("idle");
-  const { userId } = useAuth();
+  const { user } = useAuth();
+  const userId = user?.id;
   const router = useRouter();
   const { callbackMFA } = ROUTES.webAuthRedirect.useSearchParams();
 

@@ -57,6 +57,12 @@ CREATE TABLE IF NOT EXISTS "secrets" (
 	CONSTRAINT "secrets_workspaceId_unique" UNIQUE("workspaceId")
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "session" (
+	"id" text PRIMARY KEY NOT NULL,
+	"user_id" text NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "users" (
 	"id" text PRIMARY KEY NOT NULL,
 	"firstName" text,
@@ -65,8 +71,11 @@ CREATE TABLE IF NOT EXISTS "users" (
 	"username" text NOT NULL,
 	"createdAt" timestamp DEFAULT now(),
 	"updatedAt" timestamp,
+	"avatar" text,
+	"githubId" text,
 	CONSTRAINT "users_email_unique" UNIQUE("email"),
-	CONSTRAINT "users_username_unique" UNIQUE("username")
+	CONSTRAINT "users_username_unique" UNIQUE("username"),
+	CONSTRAINT "users_githubId_unique" UNIQUE("githubId")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "variables" (
@@ -120,6 +129,12 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "secrets" ADD CONSTRAINT "secrets_workspaceId_workspaces_id_fk" FOREIGN KEY ("workspaceId") REFERENCES "workspaces"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "session" ADD CONSTRAINT "session_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

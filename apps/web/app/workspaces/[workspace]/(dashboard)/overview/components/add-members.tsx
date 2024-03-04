@@ -99,6 +99,7 @@ export default function AddMembers({
       fetcher(
         `${window.location.origin}/api/users/search?email=${memberEmail}&workspace=${workspace}`
       ),
+    enabled: !!memberEmail.length,
   });
 
   const handler = async () => {
@@ -159,20 +160,23 @@ export default function AddMembers({
               ) : error ||
                 (users &&
                   users.status === "success" &&
+                  users.status === "success" &&
                   users.result.length > 0) ? (
                 <>
                   <h4 className="text-sm font-medium">Found Users</h4>
                   <ScrollArea
                     className={cn(
                       "w-full ",
-                      users.status === "success" && users.result.length > 5
+                      users &&
+                        users.status === "success" &&
+                        users.result.length > 5
                         ? "h-[300px]"
                         : "h-fit"
                     )}
                   >
                     <div className="grid gap-6 pr-4">
-                      {users.status === "success" &&
-                        users.result.map((user) => {
+                      {users?.status === "success" &&
+                        users?.result.map((user) => {
                           return (
                             <div
                               key={user.id}
@@ -200,12 +204,14 @@ export default function AddMembers({
                                 />
                                 <Avatar className="h-9 w-9">
                                   <AvatarImage
-                                    src={user.avatar}
-                                    alt={user.firstName}
+                                    src={user.avatar || ""}
+                                    alt={user.firstName || "User"}
                                   />
                                   <AvatarFallback>
-                                    {user.firstName[0].toUpperCase() +
-                                      user.lastName[0].toUpperCase()}
+                                    {user.firstName &&
+                                      user.firstName[0].toUpperCase() +
+                                        (user.lastName &&
+                                          user.lastName[0].toUpperCase())}
                                   </AvatarFallback>
                                 </Avatar>
                                 <div>

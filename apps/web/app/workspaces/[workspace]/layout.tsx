@@ -1,14 +1,16 @@
+import getAuth from "@/async/getAuth";
+import ROUTES from "@/lib/routes";
 import { secretDB } from "@/utils/local-store";
-import { currentUser } from "@clerk/nextjs";
 import { Badge } from "@ui/components/ui/badge";
 import { Button } from "@ui/components/ui/button";
 import db, { eq, members, workspaces } from "database";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import React, { use } from "react";
 
 const onlyMembersAllowed = async (workspaceId: string) => {
-  const user = await currentUser();
+  const user = await getAuth();
+
+  if (!user) return false;
 
   try {
     const member = await db.query.workspaces.findFirst({
@@ -20,7 +22,7 @@ const onlyMembersAllowed = async (workspaceId: string) => {
       },
     });
 
-    if (member.id) {
+    if (member && member.id) {
       return true;
     } else return false;
   } catch (error) {
@@ -61,7 +63,7 @@ const Layout = async ({
               </Badge>{" "}
               attached with your account.
             </p>
-            <Link href="/get-started/workspaces">
+            <Link href={ROUTES.getStarted({})}>
               <Button>All your workspaces</Button>
             </Link>
           </div>

@@ -1,0 +1,1 @@
+ALTER TABLE "authenticators" ALTER COLUMN "counter" SET NOT NULL;

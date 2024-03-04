@@ -59,8 +59,8 @@ export const columns: ColumnDef<SecretFiles>[] = [
     ),
     cell: ({ row }) => {
       const secret = row.original;
-      const createdAt = secret.created_at;
-      const date = new Date(createdAt);
+      const createdAt = secret.createdAt;
+      const date = new Date(createdAt!);
       const formatted = date.toDateString();
       return <div className="text-right font-medium">{formatted}</div>;
     },

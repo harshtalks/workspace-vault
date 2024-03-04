@@ -58,7 +58,7 @@ const CollapsibleComponent = ({
       </div>
       <div className="flex items-center space-x-4 rounded-md border px-4 py-2 font-mono overflow-scroll text-sm shadow-sm">
         <Avatar>
-          <AvatarImage src={activity.members[0].avatar} />
+          <AvatarImage src={activity.members[0].avatar || ""} />
           <AvatarFallback>
             {activity.members[0].fullname
               .split(" ")
@@ -81,7 +81,7 @@ const CollapsibleComponent = ({
             className="flex items-center space-x-4 rounded-md border px-4 py-2 font-mono text-sm shadow-sm overflow-hidden"
           >
             <Avatar>
-              <AvatarImage src={member.avatar} />
+              <AvatarImage src={member.avatar || ""} />
               <AvatarFallback>
                 {member.fullname.split(" ").map((el) => el[0].toUpperCase())}
               </AvatarFallback>

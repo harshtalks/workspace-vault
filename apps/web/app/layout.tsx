@@ -1,19 +1,22 @@
 import "@ui/styles/globals.css";
 import ThemeLayout from "./theme-layout";
 import { ThemeProvider } from "@/app/theme-providers";
-import ClientSessionProvider from "./session-provider";
 import StoreProvider from "./store-provider";
 import NextTopLoader from "nextjs-toploader";
 import QueryProvider from "./query-provider";
+import { ClientSessionProvider } from "./session-provider";
+import { validateRequest } from "@/lib/auth/auth";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { user, session } = await validateRequest();
+
   return (
-    <ClientSessionProvider>
-      <html lang="en" suppressContentEditableWarning>
+    <html lang="en" suppressContentEditableWarning>
+      <ClientSessionProvider initialData={{ user, session }}>
         <head />
         <body>
           <NextTopLoader
@@ -39,7 +42,7 @@ export default function RootLayout({
             </ThemeProvider>
           </QueryProvider>
         </body>
-      </html>
-    </ClientSessionProvider>
+      </ClientSessionProvider>
+    </html>
   );
 }

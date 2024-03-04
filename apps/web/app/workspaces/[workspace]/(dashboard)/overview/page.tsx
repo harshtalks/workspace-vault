@@ -14,38 +14,10 @@ import AddMembers from "./components/add-members";
 import { WorkspaceActivities } from "./components/workspace-activities";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import WorkspaceInfo from "./components/workspace-info";
-import { workerData } from "worker_threads";
 import Link from "next/link";
-import db, { and, eq, members, workspaces } from "database";
-import { currentUser } from "@clerk/nextjs";
 import { Badge } from "@ui/components/ui/badge";
-
-export const butBroCanYouDoShitHere = async (workspace: string) => {
-  try {
-    const user = await currentUser();
-
-    const canYouAddMembersHere = await db.query.members.findFirst({
-      where: and(
-        eq(members.workspaceId, workspace),
-        eq(members.ownerId, user.id)
-      ),
-    });
-
-    console.log(canYouAddMembersHere);
-
-    return {
-      addUser: canYouAddMembersHere.permissions.includes("AddMembers"),
-      addOrEditFile: canYouAddMembersHere.permissions.includes("Write"),
-      status: "success",
-    };
-  } catch (error) {
-    return {
-      addUser: false,
-      addOrEditFile: false,
-      status: "error",
-    };
-  }
-};
+import ROUTES from "@/lib/routes";
+import { butBroCanYouDoShitHere } from "@/async/validateUserAccess";
 
 const page = async ({ params }: { params: { workspace: string } }) => {
   const canYouDoAnythingFR = await butBroCanYouDoShitHere(params.workspace);
@@ -223,7 +195,12 @@ const page = async ({ params }: { params: { workspace: string } }) => {
             </Suspense>
           </CardContent>
           <CardFooter>
-            <Link href={`workspaces/${params.workspace}/settings`}>
+            <Link
+              href={ROUTES.workspaceTab({
+                workspaceId: params.workspace,
+                tab: "settings",
+              })}
+            >
               <Button variant="secondary">Edit workspace settings</Button>
             </Link>
           </CardFooter>

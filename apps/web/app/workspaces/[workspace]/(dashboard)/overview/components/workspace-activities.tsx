@@ -22,6 +22,7 @@ async function fetchRecentActivitiesForTheWorkspace<TData>(
       result: response,
     };
   } catch (error) {
+    console.log(error);
     return {
       status: "error",
       error: error instanceof Error ? error.message : "An Error Occured.",

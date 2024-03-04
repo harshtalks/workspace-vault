@@ -1,11 +1,11 @@
-//
 import Link from "next/link";
-import React from "react";
+import React, { Suspense } from "react";
 import ToggleTheme from "./toggle-theme";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
-import { UserButton } from "@clerk/nextjs";
 import Deauthenticate from "./deauthenticate";
 import Logo from "./logo";
+import { User } from "./User";
+import { SignOut } from "./Signout";
 
 const Header = () => {
   return (
@@ -15,8 +15,10 @@ const Header = () => {
           <Logo />
         </Link>
         <div className="flex items-center gap-4">
-          <Deauthenticate />
-          <UserButton afterSignOutUrl="/" />
+          <Suspense fallback={<p>loading...</p>}>
+            {/* @ts-ignore  */}
+            <User />
+          </Suspense>
           <ToggleTheme />
           <Link href="/">
             <GitHubLogoIcon className="h-6 w-6" />
