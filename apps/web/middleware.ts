@@ -39,6 +39,7 @@ const withLuciaSession = () => async (req: NextRequest) => {
       return NextResponse.next();
     }
   } catch (e) {
+    console.log(e);
     return NextResponse.redirect(new URL("/", req.url));
   }
 };
