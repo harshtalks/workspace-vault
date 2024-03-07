@@ -23,13 +23,13 @@ export const butBroCanYouDoShitHere = async (workspace: string) => {
     return {
       addUser: canYouAddMembersHere.permissions.includes("AddMembers"),
       addOrEditFile: canYouAddMembersHere.permissions.includes("Write"),
-      status: "success",
+      status: "success" as const,
     };
   } catch (error) {
     return {
       addUser: false,
       addOrEditFile: false,
-      status: "error",
+      status: "error" as const,
     };
   }
 };

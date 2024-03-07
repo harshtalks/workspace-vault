@@ -12,19 +12,26 @@ export const GET = withError(async (request: NextRequest) => {
     throw new Error("We could not find the user in the database..");
   }
 
-  const workspacesResult = await db.query.workspaces.findMany({
-    with: {
-      members: {
-        where: eq(members.ownerId, user.id),
-      },
+  const workspacesResult = await db.query.members.findMany({
+    columns: {
+      workspaceId: true,
     },
+    where: (members, { eq }) => eq(members.ownerId, user.id),
+  });
+
+  const finalWorkspaces = await db.query.workspaces.findMany({
+    where: (workspaces, { inArray }) =>
+      inArray(
+        workspaces.id,
+        workspacesResult.map((el) => el.workspaceId)
+      ),
   });
 
   return NextResponse.json(
     {
       status: "success",
-      result: workspacesResult,
-    } as RequestSuccess<(typeof workspaces.$inferInsert)[]>,
+      result: finalWorkspaces,
+    } as RequestSuccess<(typeof workspaces.$inferSelect)[]>,
     { status: 200 }
   );
 });

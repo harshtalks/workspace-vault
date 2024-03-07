@@ -1,6 +1,5 @@
 import getAuth from "@/async/getAuth";
 import ROUTES from "@/lib/routes";
-import { secretDB } from "@/utils/local-store";
 import { Badge } from "@ui/components/ui/badge";
 import { Button } from "@ui/components/ui/button";
 import db, { eq, members, workspaces } from "database";

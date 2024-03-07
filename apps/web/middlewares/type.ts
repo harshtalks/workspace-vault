@@ -18,7 +18,7 @@ export type RequestResponse<Tdata> = RequestSuccess<Tdata> | RequestError;
 
 // Zod Specials
 
-export const RequestSuccessSchema = (schema: z.ZodType) =>
+export const RequestSuccessSchema = <T extends z.ZodType>(schema: T) =>
   z.object({
     status: z.literal("success"),
     result: schema,
@@ -29,5 +29,5 @@ export const RequestErrorSchema = z.object({
   error: z.string(),
 });
 
-export const RequestResponseSchema = (schema: z.ZodType) =>
+export const RequestResponseSchema = <T extends z.ZodType>(schema: T) =>
   z.union([RequestSuccessSchema(schema), RequestErrorSchema]);

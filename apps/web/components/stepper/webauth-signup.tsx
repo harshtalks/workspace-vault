@@ -19,13 +19,13 @@ import { toast } from "sonner";
 import { SignJWT } from "jose";
 import { RequestResponse } from "@/middlewares/type";
 import { useAuth } from "@/app/session-provider";
+import { signWithWebAuth } from "@/app/api/webauth/sign/sign.fetcher";
 
 type CardProps = React.ComponentProps<typeof Card>;
 
 export type WebAuthSignedStates = "error" | "success" | "isPending" | "idle";
 
 export function WebAuthSignup({ className, ...props }: CardProps) {
-  const [isChecked, setIsChecked] = React.useState(false);
   const [isSigned, setIsSigned] = React.useState<WebAuthSignedStates>("idle");
   const router = useRouter();
 
@@ -39,25 +39,13 @@ export function WebAuthSignup({ className, ...props }: CardProps) {
 
       if (result && userId) {
         setIsSigned("isPending");
-        const alg = "HS256";
 
-        const secret = new TextEncoder().encode(
-          process.env.NEXT_PUBLIC_WEB_AUTH_SECRET
-        );
-
-        const jwt = await new SignJWT({ userId })
-          .setProtectedHeader({ alg })
-          .setExpirationTime("24h")
-          .sign(secret);
-
-        const response = await fetch("/api/webauth/sign", {
-          method: "POST",
-          body: JSON.stringify({
-            jwt,
-          }),
+        const result = await signWithWebAuth({
+          params: {},
+          body: {
+            userId: userId,
+          },
         });
-
-        const result = (await response.json()) as RequestResponse<string>;
 
         if (result.status !== "success") {
           throw new Error(result.error);

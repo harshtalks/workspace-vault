@@ -48,6 +48,14 @@ const ROUTES = {
       internal: true,
     },
   }),
+  webAuthDeAuth: createRoute({
+    fn: () => "/api/webauth/deauthenticate",
+    paramsSchema: z.object({}),
+    name: "deauthenticate-webauth",
+    options: {
+      internal: true,
+    },
+  }),
 };
 
 export default ROUTES;

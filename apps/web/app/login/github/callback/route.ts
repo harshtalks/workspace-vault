@@ -37,6 +37,7 @@ export const GET = async (req: Request): Promise<Response> => {
           Authorization: `Bearer ${token.accessToken}`,
         },
       },
+      body: {},
     });
 
     const githubUserEmails = await getGithubUserEmails({
@@ -46,6 +47,7 @@ export const GET = async (req: Request): Promise<Response> => {
         },
       },
       params: {},
+      body: {},
     });
 
     const seeIfUserExists = await db.query.users.findFirst({
